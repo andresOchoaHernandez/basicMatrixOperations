@@ -8,7 +8,7 @@ int main(void)
     int N = 10;
     int M = 10;
 
-    std::cout << "MAIN\n";
+    std::cout << "TESTS\n";
 
     matrixTranspose(a,N,M,a_transpose);
 
