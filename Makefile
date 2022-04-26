@@ -1,13 +1,13 @@
-flags := -std=c++11 -Wall
+flags     := -std=c++11 -Wall
 
-inc   := include/
-src   := src/BasicMatrixOperations.cpp
+inc       := include/
+src       := src/BasicMatrixOperations.cpp
 
-test  :=test/test.cpp 
+test      := test/test.cpp 
 test_exec := bin/tests
 
-main  := main.cpp
-exec  := bin/app
+main      := main.cpp
+exec      := bin/app
 
 all: tests main
 

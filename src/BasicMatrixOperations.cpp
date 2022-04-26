@@ -39,7 +39,18 @@ int matrixMultiplication(float* matrix_A,int rows_A,int columns_A,
     return 0;
 }
 
-void matrixTranspose(float * A,int n,int m,float * A_transpose,int n_t,int m_t)
+int matrixTranspose(float * A,int n,int m,float * A_transpose,int n_t,int m_t)
 {
-    std::cout << "//TODO: Matrix transpose!" << std::endl;
+
+    if( (n != m_t) || (m != n_t) ){std::cerr << "given matrix's dimensions don't match\n";return -1;}
+
+    for(int i = 0; i < n_t;i++)
+    {
+        for(int j = 0; j <m_t;j++)
+        {
+            A_transpose[i*m_t + j] = A[j*m + i];
+        }
+    }
+
+    return 0;
 }

@@ -12,7 +12,7 @@ void one_initialization(float *A,int n,int m)
     }
 }
 
-int testOne()
+int matrixMulTestOne()
 {
     const int n_A = 10;
     const int m_A = 60;
@@ -52,14 +52,67 @@ int testOne()
     return 0;
 }
 
+void fill_matrix(float *A,int n,int m)
+{
+    int value = 1;
+
+    for(int i = 0;i < n; i++)
+    {
+        for(int j = 0; j < m ; j++)
+        {
+            A[i*m + j] = value++;
+        }
+    }
+}
+int checkIfCorrect(float * A,int n,int m,float * A_transpose,int n_t,int m_t)
+{
+    for(int i = 0; i < n_t;i++)
+    {
+        for(int j = 0; j <m_t;j++)
+        {
+            if(A_transpose[i*m_t + j] != A[j*m + i]) return -1;
+        }
+    }
+
+    return 0;
+}
+
+int matrixTransposeTestOne()
+{
+    const int n = 50;
+    const int m = 30;
+
+    float *A = new float[n*m];
+    fill_matrix(A,n,m);
+
+    const int n_t =m;
+    const int m_t = n;
+
+    float *A_t = new float[n_t*m_t]();
+
+    if(matrixTranspose(A,n,m,A_t,n_t,m_t) == -1) return -1;
+    if(checkIfCorrect(A,n,m,A_t,n_t,m_t) == -1)return -1;
+
+    delete[] A;
+    delete[] A_t;
+
+    return 0;
+}
+
 int main(void)
 {
 
-    if(testOne() == -1){
-        std::cout << "testOne [FAILED]\n";
+    if(matrixMulTestOne() == -1){
+        std::cout << "matrixMulTestOne [FAILED]\n";
         return -1;
     }
-    std::cout << "testOne [OK]\n";
+    std::cout << "matrixMulTestOne [OK]\n";
+
+    if(matrixTransposeTestOne() == -1){
+        std::cout << "matrixTransposeTestOne [FAILED]\n";
+        return -1;
+    }
+    std::cout << "matrixTransposeTestOne [OK]\n";
 
     return 0;
 }
