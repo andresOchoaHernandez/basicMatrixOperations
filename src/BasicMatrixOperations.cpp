@@ -31,7 +31,7 @@ int matrixMultiplication(float* matrix_A,int rows_A,int columns_A,
             float sum = 0;
             for(int k = 0; k < columns_A;k++)
             {
-                sum += matrix_A[rows * columns_A + k]*matrix_B[k* rows_B + columns];
+                sum += matrix_A[rows * columns_A + k]*matrix_B[k* columns_B + columns];
             }
             matrix_C[rows * columns_C + columns] = sum;
         }
