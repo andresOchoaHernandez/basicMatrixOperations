@@ -1,4 +1,4 @@
-flags     := -std=c++11 -Wall
+flags     := -std=c++11 -Wall -fopenmp -03
 
 inc       := include/
 src       := src/BasicMatrixOperations.cpp
