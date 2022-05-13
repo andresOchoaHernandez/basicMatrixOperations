@@ -1,5 +1,13 @@
 #pragma once
 
+template<typename T>
+struct Matrix2d
+{
+    T **data;
+    int rows;
+    int columns;
+};
+
 void print_matrix(float * A,int n,int m);
 
 int matrixMultiplication(float* matrix_A,int rows_A,int columns_A,
