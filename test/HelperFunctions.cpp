@@ -1,36 +1,36 @@
 #include "HelperFunctions.hpp"
 
-void one_initialization(float *A,int n,int m)
+void one_initialization(Matrix2d *A)
 {
-    for (int i = 0; i < n;i++)
+    for (int i = 0; i < A->rows;i++)
     {
-        for(int j = 0;j< m; j++)
+        for(int j = 0;j< A->columns; j++)
         {
-            A[i*m+j] = 1;
+            A->data[i*A->columns+j] = 1;
         }
     }
 }
 
-void fill_matrix(float *A,int n,int m)
+void fill_matrix(Matrix2d *A)
 {
-    int value = 1;
+    float value = 1;
 
-    for(int i = 0;i < n; i++)
+    for(int i = 0;i < A->rows; i++)
     {
-        for(int j = 0; j < m ; j++)
+        for(int j = 0; j < A->columns; j++)
         {
-            A[i*m + j] = value++;
+            A->data[i*A->columns + j] = value++;
         }
     }
 }
 
-int checkIfCorrect(float * A,int n,int m,float * A_transpose,int n_t,int m_t)
+int checkIfCorrect(Matrix2d *A,Matrix2d *A_t)
 {
-    for(int i = 0; i < n_t;i++)
+    for(int i = 0; i < A_t->rows;i++)
     {
-        for(int j = 0; j <m_t;j++)
+        for(int j = 0; j < A_t->columns;j++)
         {
-            if(A_transpose[i*m_t + j] != A[j*m + i]) return -1;
+            if(A_t->data[i*A_t->columns + j] != A->data[j*A->columns + i]) return -1;
         }
     }
 

@@ -10,40 +10,39 @@ const int MB = 1024;
 
 int matrixMulTestOne()
 {
-    const int n_A = NA;
-    const int m_A = MA;
-    float *A = new float[n_A*m_A];
-    one_initialization(A,n_A,m_A);
+    Matrix2d A;
+    A.rows    = NA;
+    A.columns = MA;
+    A.data = new float[A.rows*A.columns];
+    one_initialization(&A);
 
-    const int n_B = NB;
-    const int m_B = MB;
-    float *B = new float[n_B*m_B];
-    one_initialization(B,n_B,m_B);
+    Matrix2d B;
+    B.rows = NB;
+    B.columns = MB;
+    B.data = new float[B.rows*B.columns];
+    one_initialization(&B);
 
-    const int n_C = n_A;
-    const int m_C = m_B;
-    float *C = new float[n_C*m_C];
+    Matrix2d C;
+    C.rows    = A.rows;
+    C.columns = B.columns;
+    C.data = new float[C.rows*C.columns];
 
     int code =  
-    matrixMultiplication(
-        A,n_A,m_A,
-        B,n_B,m_B,
-        C,n_C,m_C
-    );
+    matrixMultiplication(&A,&B,&C);
 
     if(code == -1) return -1;
 
-    for (int i = 0; i < n_C;i++)
+    for (int i = 0; i < C.rows;i++)
     {
-        for(int j = 0;j< m_C; j++)
+        for(int j = 0;j< C.columns; j++)
         {
-            if(C[i*m_C+j] != m_A) return -1;
+            if(C.data[i*C.columns+j] != A.columns) return -1;
         }
     }
 
-    delete[] A;
-    delete[] B;
-    delete[] C;
+    delete[] A.data;
+    delete[] B.data;
+    delete[] C.data;
 
     return 0;
 }

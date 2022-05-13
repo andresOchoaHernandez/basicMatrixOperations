@@ -2,7 +2,7 @@ project(basicMatrixOperations)
 
 cmake_minimum_required(VERSION 3.5)
 
-# main
+# ======================== MAIN ========================
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
 
 target_include_directories(
@@ -17,9 +17,9 @@ target_sources(
     PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
 )
 
-# test
+# ======================== TEST ========================
 
-#MATRIX MUL
+# ===== MATRIX MULTIPLICATION =====
 add_executable(test1 ${PROJECT_SOURCE_DIR}/test/TestMatrixMultiplication.cpp)
 
 target_include_directories(
@@ -43,8 +43,7 @@ add_test(
     COMMAND ./test1
 )
 
-#MATRIX TRANSPOSE
-
+# ===== MATRIX TRANSPOSE =====
 add_executable(test2 ${PROJECT_SOURCE_DIR}/test/TestMatrixTranspose.cpp)
 
 target_include_directories(

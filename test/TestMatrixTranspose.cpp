@@ -3,27 +3,32 @@
 #include "HelperFunctions.hpp"
 #include "BasicMatrixOperations.hpp"
 
-const int N = 5000;
-const int M = 2000;
+const int N = 5;
+const int M = 4;
 
 int matrixTransposeTestOne()
 {
-    const int n = N;
-    const int m = M;
+    Matrix2d A;
+    A.rows    = N;
+    A.columns = M; 
 
-    float *A = new float[n*m];
-    fill_matrix(A,n,m);
+    A.data = new float[A.rows*A.columns];
+    fill_matrix(&A);
 
-    const int n_t =m;
-    const int m_t = n;
+    Matrix2d A_t;
+    A_t.rows    = M;
+    A_t.columns = N; 
 
-    float *A_t = new float[n_t*m_t]();
+    A_t.data = new float[A_t.rows*A_t.columns]();
 
-    if(matrixTranspose(A,n,m,A_t,n_t,m_t) == -1) return -1;
-    if(checkIfCorrect(A,n,m,A_t,n_t,m_t) == -1)return -1;
+    if(matrixTranspose(&A,&A_t) == -1) return -1;
+    if(checkIfCorrect(&A,&A_t) == -1)return -1;
 
-    delete[] A;
-    delete[] A_t;
+    print_matrix(&A);
+    print_matrix(&A_t);
+
+    delete[] A.data;
+    delete[] A_t.data;
 
     return 0;
 }
