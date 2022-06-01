@@ -29,7 +29,7 @@ int matrixMultiplication(Matrix2d* A,Matrix2d* B,Matrix2d* C)
     {
         for(int columns = 0; columns < C->columns;columns++)
         {
-            float sum = 0;
+            double sum = 0;
             for(int k = 0; k < A->columns;k++)
             {
                 sum += A->data[rows * A->columns + k]*B->data[k* B->columns + columns];

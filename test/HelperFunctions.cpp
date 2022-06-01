@@ -13,7 +13,7 @@ void one_initialization(Matrix2d *A)
 
 void fill_matrix(Matrix2d *A)
 {
-    float value = 1;
+    double value = 1;
 
     for(int i = 0;i < A->rows; i++)
     {

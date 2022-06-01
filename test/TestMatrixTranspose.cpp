@@ -12,14 +12,14 @@ int matrixTransposeTestOne()
     A.rows    = N;
     A.columns = M; 
 
-    A.data = new float[A.rows*A.columns];
+    A.data = new double[A.rows*A.columns];
     fill_matrix(&A);
 
     Matrix2d A_t;
     A_t.rows    = M;
     A_t.columns = N; 
 
-    A_t.data = new float[A_t.rows*A_t.columns]();
+    A_t.data = new double[A_t.rows*A_t.columns]();
 
     if(matrixTranspose(&A,&A_t) == -1) return -1;
     if(checkIfCorrect(&A,&A_t) == -1)return -1;

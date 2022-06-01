@@ -13,19 +13,19 @@ int matrixMulTestOne()
     Matrix2d A;
     A.rows    = NA;
     A.columns = MA;
-    A.data = new float[A.rows*A.columns];
+    A.data = new double[A.rows*A.columns];
     one_initialization(&A);
 
     Matrix2d B;
     B.rows = NB;
     B.columns = MB;
-    B.data = new float[B.rows*B.columns];
+    B.data = new double[B.rows*B.columns];
     one_initialization(&B);
 
     Matrix2d C;
     C.rows    = A.rows;
     C.columns = B.columns;
-    C.data = new float[C.rows*C.columns];
+    C.data = new double[C.rows*C.columns];
 
     int code =  
     matrixMultiplication(&A,&B,&C);

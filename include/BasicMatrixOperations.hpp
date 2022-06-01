@@ -2,7 +2,7 @@
 
 struct Matrix2d
 {
-    float *data;
+    double *data;
     int rows;
     int columns;
 };
