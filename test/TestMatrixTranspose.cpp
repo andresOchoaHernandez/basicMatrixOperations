@@ -13,7 +13,7 @@ int matrixTransposeTestOne()
     A.columns = M; 
 
     A.data = new double[A.rows*A.columns];
-    fill_matrix(&A);
+    fill_matrix(A);
 
     Matrix2d A_t;
     A_t.rows    = M;
@@ -21,11 +21,11 @@ int matrixTransposeTestOne()
 
     A_t.data = new double[A_t.rows*A_t.columns]();
 
-    if(matrixTranspose(&A,&A_t) == -1) return -1;
-    if(checkIfCorrect(&A,&A_t) == -1)return -1;
+    if(matrixTranspose(A,A_t) == -1) return -1;
+    if(checkIfCorrect(A,A_t) == -1)return -1;
 
-    print_matrix(&A);
-    print_matrix(&A_t);
+    print_matrix(A);
+    print_matrix(A_t);
 
     delete[] A.data;
     delete[] A_t.data;

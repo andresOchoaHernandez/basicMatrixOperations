@@ -3,10 +3,10 @@
 #include "BasicMatrixOperations.hpp"
 #include "HelperFunctions.hpp"
 
-const int NA = 1024;
-const int MA = 1024;
+const int NA = 10;
+const int MA = 20;
 const int NB = MA;
-const int MB = 1024;
+const int MB = 3;
 
 int matrixMulTestOne()
 {
@@ -14,13 +14,17 @@ int matrixMulTestOne()
     A.rows    = NA;
     A.columns = MA;
     A.data = new double[A.rows*A.columns];
-    one_initialization(&A);
+    one_initialization(A);
+
+    print_matrix(A);
 
     Matrix2d B;
     B.rows = NB;
     B.columns = MB;
     B.data = new double[B.rows*B.columns];
-    one_initialization(&B);
+    one_initialization(B);
+
+    print_matrix(B);
 
     Matrix2d C;
     C.rows    = A.rows;
@@ -28,7 +32,9 @@ int matrixMulTestOne()
     C.data = new double[C.rows*C.columns];
 
     int code =  
-    matrixMultiplication(&A,&B,&C);
+    matrixMultiplication(A,B,C);
+
+    print_matrix(C);
 
     if(code == -1) return -1;
 
@@ -36,6 +42,7 @@ int matrixMulTestOne()
     {
         for(int j = 0;j< C.columns; j++)
         {
+
             if(C.data[i*C.columns+j] != A.columns) return -1;
         }
     }

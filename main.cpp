@@ -3,7 +3,7 @@
 #include <cmath>
 #include "BasicMatrixOperations.hpp"
 
-void softmax(Matrix2d &y,Matrix2d &z)
+void softmax(const Matrix2d &y,Matrix2d &z)
 {
     if(y.rows != z.rows || y.columns != z.columns)
     {
@@ -28,7 +28,7 @@ void softmax(Matrix2d &y,Matrix2d &z)
     }
 }
 
-double avg_cross_entropy(Matrix2d &outputs, Matrix2d &labels)
+double avg_cross_entropy(const Matrix2d &outputs, const Matrix2d &labels)
 {
     if(outputs.rows != labels.rows || outputs.columns != labels.columns)
     {
@@ -97,7 +97,6 @@ int main(void)
 
     std:: cout << "calculated cross entropy: " << result << std::endl;
 
-
     Matrix2d y;
     y.rows    = 3;
     y.columns = 3;
@@ -113,7 +112,7 @@ int main(void)
     y.data[7] = 2.0;
     y.data[8] = 3.0;
     
-    print_matrix(&y);
+    print_matrix(y);
 
     Matrix2d z;
     z.rows    = 3;
@@ -121,6 +120,8 @@ int main(void)
     z.data = new double[3*3];
 
     softmax(y,z);
+
+    print_matrix(z);
 
     delete[] output.data;
     delete[] labels.data; 

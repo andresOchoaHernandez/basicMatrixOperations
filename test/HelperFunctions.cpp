@@ -1,36 +1,36 @@
 #include "HelperFunctions.hpp"
 
-void one_initialization(Matrix2d *A)
+void one_initialization(Matrix2d &A)
 {
-    for (int i = 0; i < A->rows;i++)
+    for (int i = 0; i < A.rows;i++)
     {
-        for(int j = 0;j< A->columns; j++)
+        for(int j = 0;j< A.columns; j++)
         {
-            A->data[i*A->columns+j] = 1;
+            A.data[i*A.columns+j] = 1;
         }
     }
 }
 
-void fill_matrix(Matrix2d *A)
+void fill_matrix(Matrix2d &A)
 {
     double value = 1;
 
-    for(int i = 0;i < A->rows; i++)
+    for(int i = 0;i < A.rows; i++)
     {
-        for(int j = 0; j < A->columns; j++)
+        for(int j = 0; j < A.columns; j++)
         {
-            A->data[i*A->columns + j] = value++;
+            A.data[i*A.columns + j] = value++;
         }
     }
 }
 
-int checkIfCorrect(Matrix2d *A,Matrix2d *A_t)
+int checkIfCorrect(const Matrix2d &A,const Matrix2d &A_t)
 {
-    for(int i = 0; i < A_t->rows;i++)
+    for(int i = 0; i < A_t.rows;i++)
     {
-        for(int j = 0; j < A_t->columns;j++)
+        for(int j = 0; j < A_t.columns;j++)
         {
-            if(A_t->data[i*A_t->columns + j] != A->data[j*A->columns + i]) return -1;
+            if(A_t.data[i*A_t.columns + j] != A.data[j*A.columns + i]) return -1;
         }
     }
 
