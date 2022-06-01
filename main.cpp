@@ -121,6 +121,9 @@ double forward_propagation(
     
     sigmoid(Y1,Z1);
 
+    print_matrix(Y1);
+    print_matrix(Z1);
+
     /*  SECOND LAYER */
     Matrix2d W2_t;
     W2_t.rows    = W2.columns;
@@ -149,6 +152,9 @@ double forward_propagation(
     Z2.data = new double[Z2.rows * Z2.columns]; 
     
     sigmoid(Y2,Z2);
+
+    print_matrix(Y2);
+    print_matrix(Z2);
 
     /*  THIRD LAYER */
     Matrix2d W3_t;
@@ -179,6 +185,9 @@ double forward_propagation(
     
     softmax(Y3,Z3);
 
+    print_matrix(Y3);
+    print_matrix(Z3);
+
     double loss = avg_cross_entropy(Z3,labels);
 
     delete[] W1_t.data;
@@ -201,73 +210,139 @@ double forward_propagation(
 
 int main(void)
 {
-    Matrix2d output;
-    output.rows    = 3;
-    output.columns = 3;
-    output.data = new double [3*3];
+    Matrix2d X;
+    X.rows    = 4;
+    X.columns = 3;
+    X.data = new double [4*3];
 
-    output.data[0] =0.3;
-    output.data[1] =0.1;
-    output.data[2] =0.5;
-    output.data[3] =0.2;
-    output.data[4] =0.1;
-    output.data[5] =0.4;
-    output.data[6] =0.5;
-    output.data[7] =0.8;
-    output.data[8] =0.1;
+    X.data[0]  = 3;
+    X.data[1]  = 6;
+    X.data[2]  = 4;
+    X.data[3]  = 4;
+    X.data[4]  = 1;
+    X.data[5]  = 3;
+    X.data[6]  = 2;
+    X.data[7]  = 3;
+    X.data[8]  = 2;
+    X.data[9]  = 5;
+    X.data[10] = 9;
+    X.data[11] = 5;
+
+    Matrix2d W1;
+    W1.rows    = 4;
+    W1.columns = 3;
+    W1.data = new double [4*3];
+
+    W1.data[0]  = 1;
+    W1.data[1]  = 1;
+    W1.data[2]  = 1;
+    W1.data[3]  = 1;
+    W1.data[4]  = 1;
+    W1.data[5]  = 1;
+    W1.data[6]  = 1;
+    W1.data[7]  = 1;
+    W1.data[8]  = 1;
+    W1.data[9]  = 1;
+    W1.data[10] = 1;
+    W1.data[11] = 1;
+
+    Matrix2d b1;
+    b1.rows    = 3;
+    b1.columns = 3;
+    b1.data = new double [3*3];
+
+    b1.data[0]  = 1;
+    b1.data[1]  = 1;
+    b1.data[2]  = 1;
+    b1.data[3]  = 1;
+    b1.data[4]  = 1;
+    b1.data[5]  = 1;
+    b1.data[6]  = 1;
+    b1.data[7]  = 1;
+    b1.data[8]  = 1;
+
+    Matrix2d W2;
+    W2.rows    = 3;
+    W2.columns = 2;
+    W2.data = new double [3*2];
+
+    W2.data[0]  = 1;
+    W2.data[1]  = 1;
+    W2.data[2]  = 1;
+    W2.data[3]  = 1;
+    W2.data[4]  = 1;
+    W2.data[5]  = 1;
+
+    Matrix2d b2;
+    b2.rows    = 2;
+    b2.columns = 3;
+    b2.data = new double [2*3];
+
+    b2.data[0]  = 1;
+    b2.data[1]  = 1;
+    b2.data[2]  = 1;
+    b2.data[3]  = 1;
+    b2.data[4]  = 1;
+    b2.data[5]  = 1;
+
+
+    Matrix2d W3;
+    W3.rows    = 2;
+    W3.columns = 3;
+    W3.data = new double [2*3];
+
+    W3.data[0]  = 1;
+    W3.data[1]  = 1;
+    W3.data[2]  = 1;
+    W3.data[3]  = 1;
+    W3.data[4]  = 1;
+    W3.data[5]  = 1;
+
+    Matrix2d b3;
+    b3.rows    = 3;
+    b3.columns = 3;
+    b3.data = new double [3*3];
+
+    b3.data[0]  = 1;
+    b3.data[1]  = 1;
+    b3.data[2]  = 1;
+    b3.data[3]  = 1;
+    b3.data[4]  = 1;
+    b3.data[5]  = 1;
+    b3.data[6]  = 1;
+    b3.data[7]  = 1;
+    b3.data[8]  = 1;
 
     Matrix2d labels;
     labels.rows    = 3;
     labels.columns = 3;
     labels.data = new double [3*3];
 
-    labels.data[0] =0.0;
-    labels.data[1] =0.0;
-    labels.data[2] =0.0;
-    labels.data[3] =0.0;
-    labels.data[4] =0.0;
-    labels.data[5] =0.0;
-    labels.data[6] =1.0;
-    labels.data[7] =1.0;
-    labels.data[8] =1.0;
+    labels.data[0]  = 1;
+    labels.data[1]  = 0;
+    labels.data[2]  = 0;
+    labels.data[3]  = 0;
+    labels.data[4]  = 1;
+    labels.data[5]  = 0;
+    labels.data[6]  = 0;
+    labels.data[7]  = 0;
+    labels.data[8]  = 1;
 
-    double result = avg_cross_entropy(output,labels);
+    double loss = forward_propagation(X,labels,W1,b1,W2,b2,W3,b3);
 
-    std:: cout << "calculated cross entropy: " << result << std::endl;
+    std::printf("Forward propagation result (loss): %f\n",loss);
 
-    Matrix2d y;
-    y.rows    = 3;
-    y.columns = 3;
-    y.data = new double[3*3];
+    delete[] X.data;
+    delete[] W1.data;
+    delete[] b1.data;
 
-    y.data[0] = 1.0;
-    y.data[1] = 9.0;
-    y.data[2] =-10.0;
-    y.data[3] = 10.0;
-    y.data[4] = 2.0;
-    y.data[5] =-1.0;
-    y.data[6] = 5.0;
-    y.data[7] = 2.0;
-    y.data[8] = 3.0;
+    delete[] W2.data;
+    delete[] b2.data;
 
-    Matrix2d z;
-    z.rows    = 3;
-    z.columns = 3;
-    z.data = new double[3*3];
+    delete[] W3.data;
+    delete[] b3.data;
 
-    softmax(y,z);
-
-    sigmoid(y,z);
-
-    print_matrix(y);
-    print_matrix(labels);
-    matrix_diff(y,labels,z);
-    print_matrix(z);
-
-    delete[] output.data;
-    delete[] labels.data; 
-    delete[] y.data;
-    delete[] z.data;
+    delete[] labels.data;
 
     return 0;
 }
