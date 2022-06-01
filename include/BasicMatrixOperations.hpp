@@ -7,8 +7,12 @@ struct Matrix2d
     int columns;
 };
 
-void print_matrix( const Matrix2d& A);
+void print_matrix(const Matrix2d& A);
 
 int matrixMultiplication(const Matrix2d& A, const Matrix2d& B,Matrix2d& C);
 
 int matrixTranspose(const Matrix2d& A,Matrix2d& A_t);
+
+int matrix_sum(const Matrix2d& A,const Matrix2d& B, Matrix2d& C);
+
+int matrix_diff(const Matrix2d& A,const Matrix2d& B, Matrix2d& C);

@@ -52,3 +52,61 @@ int matrixTranspose(const Matrix2d& A,Matrix2d& A_t)
 
     return 0;
 }
+
+int matrix_sum(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
+{
+    if(
+        !(            
+            A.rows    == B.rows     && 
+            A.columns == B.columns  &&
+            C.rows    == A.rows     &&
+            C.columns == A.columns
+         )
+      )
+    {
+        std::cerr << "Given matrices' dimensions don't match:"              << std::endl
+                  << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
+                  << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
+                  << "param : C ("  << C.rows  <<" x " << C.columns  << ")" << std::endl;
+        return -1;
+    }
+
+    for(int i = 0; i < C.rows;i++)
+    {
+        for(int j = 0;j < C.columns;j++)
+        {
+            C.data[i*C.columns + j] = A.data[i*C.columns + j] + B.data[i*C.columns + j]; 
+        }
+    }
+
+    return 1;
+}
+
+int matrix_diff(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
+{
+    if(
+        !(            
+            A.rows    == B.rows     && 
+            A.columns == B.columns  &&
+            C.rows    == A.rows     &&
+            C.columns == A.columns
+         )
+      )
+    {
+        std::cerr << "Given matrices' dimensions don't match:"              << std::endl
+                  << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
+                  << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
+                  << "param : C ("  << C.rows  <<" x " << C.columns  << ")" << std::endl;
+        return -1;
+    }
+
+    for(int i = 0; i < C.rows;i++)
+    {
+        for(int j = 0;j < C.columns;j++)
+        {
+            C.data[i*C.columns + j] = A.data[i*C.columns + j] - B.data[i*C.columns + j]; 
+        }
+    }
+
+    return 1;
+}
