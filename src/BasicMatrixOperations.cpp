@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+//#include <stdexcept>
 
 #include "BasicMatrixOperations.hpp"
 
@@ -19,8 +20,9 @@ void print_matrix(const Matrix2d& A)
 
 int matrix_multiplication(const Matrix2d& A,const Matrix2d& B,Matrix2d& C)
 {
-    if( A.columns != B.rows ){std::cerr << "matrix_A columns don't match matrix_B rows\n";return -1;}
-    if((A.rows != C.rows) || ( B.columns != C.columns) ){std::cerr << "given matrix_C dimensions\n";return -1;}
+    if( A.columns != B.rows ){std::cerr << "matrix_A columns don't match matrix_B rows\n";
+    return -1;}
+    if((A.rows != C.rows) || ( B.columns != C.columns) ){std::cerr << "given matrix_C dimensions\n";}
 
     for(int rows = 0; rows < C.rows;rows++)
     {
@@ -49,6 +51,7 @@ int matrix_dot_product(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
          )
       )
     {
+
         std::cerr << "Given matrices' dimensions don't match:"              << std::endl
                   << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
                   << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
