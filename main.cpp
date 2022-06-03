@@ -2,6 +2,8 @@
 #include <limits>
 #include <cmath>
 #include <random>
+#include <fstream>
+#include <sstream>
 
 #include "BasicMatrixOperations.hpp"
 
@@ -96,7 +98,20 @@ double forward_propagation(
                          Matrix2d& Z3
                 )
 {
-
+    /*
+    std::printf("X(%i,%i)\n",X.rows,X.columns);
+    std::printf("labels(%i,%i)\n",labels.rows,labels.columns);
+    std::printf("W1(%i,%i)\n",W1.rows,W1.columns);
+    std::printf("b1(%i,%i)\n",b1.rows,b1.columns);
+    std::printf("Z1(%i,%i)\n",Z1.rows,Z1.columns);
+    std::printf("W2(%i,%i)\n",W2.rows,W2.columns);
+    std::printf("b2(%i,%i)\n",b2.rows,b2.columns);
+    std::printf("Z2(%i,%i)\n",Z2.rows,Z2.columns);
+    std::printf("W3(%i,%i)\n",W3.rows,W3.columns);
+    std::printf("b3(%i,%i)\n",b3.rows,b3.columns);
+    std::printf("Z3(%i,%i)\n",Z3.rows,Z3.columns);
+    */
+    
     /*  FIRST LAYER */
     Matrix2d W1_t;
     W1_t.rows    = W1.columns;
@@ -121,9 +136,6 @@ double forward_propagation(
     
     sigmoid(Y1,Z1);
 
-    print_matrix(Y1);
-    print_matrix(Z1);
-
     /*  SECOND LAYER */
     Matrix2d W2_t;
     W2_t.rows    = W2.columns;
@@ -147,9 +159,6 @@ double forward_propagation(
     matrix_sum(W2_t_x_Z1,b2,Y2);
     
     sigmoid(Y2,Z2);
-
-    print_matrix(Y2);
-    print_matrix(Z2);
 
     /*  THIRD LAYER */
     Matrix2d W3_t;
@@ -222,7 +231,7 @@ void gradient_descent(
     const Matrix2d& X,
     const Matrix2d& labels,
     const int iterations,
-    const int learning_rate,
+    const double learning_rate,
     Matrix2d& W1,
     Matrix2d& b1,
     Matrix2d& W2,
@@ -396,16 +405,21 @@ void gradient_descent(
     for(int iter = 1; iter <= iterations;iter++)
     {
         loss = forward_propagation(X,labels,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
-        std::printf("[iteration %i] calculated loss: %f\n",iter,loss);
+        
+        std::printf("\r[iteration %i] calculated loss: %f",iter,loss);
 
         //calculating cached matrices
+
+        // dL_dY3
         matrix_diff(Z3,labels,dL_dY3);
 
+        // dL_dY2
         matrix_diff(one_col_vec_Z2,Z2,diff_1_Z2);
         matrix_dot_product(Z2,diff_1_Z2,Z2_dot_diff_1_Z2);
         matrix_multiplication(W3,dL_dY3,W3_mmul_dL_dY3);
-        matrix_dot_product(W3_mmul_dL_dY3,Z2_dot_diff_1_Z2,dL_dY2);
+        matrix_dot_product(W3_mmul_dL_dY3,Z2_dot_diff_1_Z2,dL_dY2); 
 
+        // dL_dY1
         matrix_diff(one_col_vec_Z1,Z1,diff_1_Z1);
         matrix_dot_product(Z1,diff_1_Z1,Z1_dot_diff_1_Z1);
         matrix_multiplication(W2,dL_dY2,W2_mmul_dL_dY2);
@@ -441,6 +455,7 @@ void gradient_descent(
         scalar_matrix_dot_product(learning_rate,dL_dY1,learning_rate_dL_dY1);
         matrix_diff(b1,learning_rate_dL_dY1,b1);
 
+        std::cout << std::flush;
     }
 
     delete[] Z1.data;
@@ -481,9 +496,133 @@ void gradient_descent(
     delete[] learning_rate_dL_dY1.data;
 } 
 
+void zero_initializazion(Matrix2d& D)
+{
+    for(int i = 0; i < D.rows;i++)
+    {
+        for(int j = 0; j < D.columns;j++)
+        {
+            D.data[i*D.columns + j] = 0;
+        }
+    }
+}
+
+void one_hot_encode(const double *labelsArray,Matrix2d& labels)
+{
+    zero_initializazion(labels);
+
+    for(int _example = 0; _example < labels.columns; _example++)
+    {
+        labels.data[static_cast<int>(labelsArray[_example]) * labels.columns + _example ] = 1;
+    }
+}
+
+void read_minst_dataset(const std::string& path,Matrix2d& data,Matrix2d& labels)
+{
+    const int EXAMPLES = data.columns;
+    const int FEATURES = data.rows;
+
+    std::fstream input_file;
+    input_file.open(path);
+
+    double *labelsArray = new double[EXAMPLES];
+    double *imageVector = new double[FEATURES];
+
+    std::string line = "";
+    std::string strBuffer;
+
+    for(int i = -1; i < EXAMPLES ; i++)
+    {
+        line.clear();
+
+        getline(input_file,line);
+
+        // avoid reading the header
+        if(i == -1){continue;}
+
+        std::stringstream input_stream(line);
+        
+        // reading the label
+        getline(input_stream,strBuffer,',');
+        labelsArray[i] = std::stod(strBuffer);
+        strBuffer.clear();
+
+        // reading one image
+        for(int j = 0; j < FEATURES; j++)
+        {
+            getline(input_stream,strBuffer,',');
+            imageVector[j] = std::stod(strBuffer);
+            strBuffer.clear();
+        }
+   
+        // convert the image into a column vector
+        for(int row = 0; row < FEATURES; row++)
+        {
+            data.data[row*EXAMPLES + i] = imageVector[row];
+        }
+    }
+
+    one_hot_encode(labelsArray,labels);
+
+    input_file.close();
+
+    delete[] labelsArray;
+    delete[] imageVector;
+}
+
 int main(void)
 {
-    std::cout << "Time to test the neural network!";
+    Matrix2d X;
+    X.rows    = 784;
+    X.columns = 2000;
+    X.data = new double[X.rows*X.columns];
+
+    Matrix2d labels;
+    labels.rows = 10;
+    labels.columns = X.columns;
+    labels.data = new double[labels.rows*labels.columns];
+
+    read_minst_dataset("/home/andres/basicMatrixOperations/mnist_dataset/mnist_train.csv",X,labels);
+
+    Matrix2d W1,b1,W2,b2,W3,b3;
+
+    W1.rows = X.rows;
+    W1.columns = 6;
+    W1.data = new double[W1.rows*W1.columns];
+
+    b1.rows = W1.columns;
+    b1.columns = X.columns;
+    b1.data = new double[b1.rows*b1.columns];
+
+    W2.rows = W1.columns;
+    W2.columns = 4;
+    W2.data = new double[W2.rows*W2.columns];
+
+    b2.rows = W2.columns;
+    b2.columns = X.columns;
+    b2.data = new double[b2.rows*b2.columns];
+
+    W3.rows = W2.columns;
+    W3.columns = 10;
+    W3.data = new double[W3.rows*W3.columns];
+
+    b3.rows = W3.columns;
+    b3.columns = X.columns;
+    b3.data = new double[b3.rows*b3.columns];
+
+    gradient_descent(X,labels,500,0.2,W1,b1,W2,b2,W3,b3);
+
+    delete[] X.data;
+    delete[] labels.data;
+
+    delete[] W1.data;
+    delete[] b1.data;
+    delete[] W2.data;
+    delete[] b2.data;
+    delete[] W3.data;
+    delete[] b3.data;
+
+    std::cout << std::endl;
 
     return 0;
 }
