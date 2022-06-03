@@ -24,7 +24,7 @@ void fill_matrix(Matrix2d &A)
     }
 }
 
-int checkIfCorrect(const Matrix2d &A,const Matrix2d &A_t)
+int check_if_correct(const Matrix2d &A,const Matrix2d &A_t)
 {
     for(int i = 0; i < A_t.rows;i++)
     {

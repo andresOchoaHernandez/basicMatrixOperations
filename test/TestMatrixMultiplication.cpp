@@ -8,7 +8,7 @@ const int MA = 20;
 const int NB = MA;
 const int MB = 3;
 
-int matrixMulTestOne()
+int matrix_mul_test_one()
 {
     Matrix2d A;
     A.rows    = NA;
@@ -32,7 +32,7 @@ int matrixMulTestOne()
     C.data = new double[C.rows*C.columns];
 
     int code =  
-    matrixMultiplication(A,B,C);
+    matrix_multiplication(A,B,C);
 
     print_matrix(C);
 
@@ -57,7 +57,7 @@ int matrixMulTestOne()
 int main(void)
 {
 
-    if(matrixMulTestOne() == -1){
+    if(matrix_mul_test_one() == -1){
         std::cout << "matrixMulTestOne [FAILED]\n";
         return -1;
     }

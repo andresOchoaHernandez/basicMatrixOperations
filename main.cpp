@@ -1,6 +1,8 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include <random>
+
 #include "BasicMatrixOperations.hpp"
 
 void sigmoid(const Matrix2d &y, Matrix2d &z)
@@ -85,10 +87,13 @@ double forward_propagation(
                    const Matrix2d& labels,
                    const Matrix2d& W1,
                    const Matrix2d& b1,
+                         Matrix2d& Z1,
                    const Matrix2d& W2,
                    const Matrix2d& b2,
+                         Matrix2d& Z2,
                    const Matrix2d& W3,
-                   const Matrix2d& b3
+                   const Matrix2d& b3,
+                         Matrix2d& Z3
                 )
 {
 
@@ -98,7 +103,7 @@ double forward_propagation(
     W1_t.columns = W1.rows;
     W1_t.data = new double[W1_t.rows * W1_t.columns];
 
-    matrixTranspose(W1,W1_t);
+    matrix_transpose(W1,W1_t);
 
     Matrix2d Y1;
     Y1.rows    = W1_t.rows;
@@ -110,14 +115,9 @@ double forward_propagation(
     W1_t_x_X.columns = Y1.columns;
     W1_t_x_X.data = new double[W1_t_x_X.rows*W1_t_x_X.columns];
 
-    matrixMultiplication(W1_t,X,W1_t_x_X);
+    matrix_multiplication(W1_t,X,W1_t_x_X);
 
     matrix_sum(W1_t_x_X,b1,Y1);
-
-    Matrix2d Z1;
-    Z1.rows    = Y1.rows;
-    Z1.columns = Y1.columns;
-    Z1.data = new double[Z1.rows * Z1.columns]; 
     
     sigmoid(Y1,Z1);
 
@@ -130,7 +130,7 @@ double forward_propagation(
     W2_t.columns = W2.rows;
     W2_t.data = new double[W2_t.rows * W2_t.columns];
 
-    matrixTranspose(W2,W2_t);
+    matrix_transpose(W2,W2_t);
 
     Matrix2d Y2;
     Y2.rows    = W2_t.rows;
@@ -142,14 +142,9 @@ double forward_propagation(
     W2_t_x_Z1.columns = Y2.columns;
     W2_t_x_Z1.data = new double[W2_t_x_Z1.rows*W2_t_x_Z1.columns];
 
-    matrixMultiplication(W2_t,Z1,W2_t_x_Z1);
+    matrix_multiplication(W2_t,Z1,W2_t_x_Z1);
 
     matrix_sum(W2_t_x_Z1,b2,Y2);
-
-    Matrix2d Z2;
-    Z2.rows    = Y2.rows;
-    Z2.columns = Y2.columns;
-    Z2.data = new double[Z2.rows * Z2.columns]; 
     
     sigmoid(Y2,Z2);
 
@@ -162,7 +157,7 @@ double forward_propagation(
     W3_t.columns = W3.rows;
     W3_t.data = new double[W3_t.rows * W3_t.columns];
 
-    matrixTranspose(W3,W3_t);
+    matrix_transpose(W3,W3_t);
 
     Matrix2d Y3;
     Y3.rows    = W3_t.rows;
@@ -174,175 +169,321 @@ double forward_propagation(
     W3_t_x_Z2.columns = Y3.columns;
     W3_t_x_Z2.data = new double[W3_t_x_Z2.rows*W3_t_x_Z2.columns];
 
-    matrixMultiplication(W3_t,Z2,W3_t_x_Z2);
+    matrix_multiplication(W3_t,Z2,W3_t_x_Z2);
 
     matrix_sum(W3_t_x_Z2,b3,Y3);
-
-    Matrix2d Z3;
-    Z3.rows    = Y3.rows;
-    Z3.columns = Y3.columns;
-    Z3.data = new double[Z3.rows * Z3.columns]; 
     
     softmax(Y3,Z3);
-
-    print_matrix(Y3);
-    print_matrix(Z3);
 
     double loss = avg_cross_entropy(Z3,labels);
 
     delete[] W1_t.data;
     delete[] Y1.data;
     delete[] W1_t_x_X.data;
-    delete[] Z1.data;
 
     delete[] W2_t.data;
     delete[] Y2.data;
     delete[] W2_t_x_Z1.data;
-    delete[] Z2.data;
 
     delete[] W3_t.data;
     delete[] Y3.data;
     delete[] W3_t_x_Z2.data;
-    delete[] Z3.data;
 
     return loss;
 }
 
+void uniform_initializazion(Matrix2d& D)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0,1);
+
+    for(int i = 0; i < D.rows;i++)
+    {
+        for(int j = 0; j < D.columns;j++)
+        {
+            D.data[i*D.columns + j] = distr(gen);
+        }
+    }
+}
+
+void one_initializazion(Matrix2d& D)
+{
+    for(int i = 0; i < D.rows;i++)
+    {
+        for(int j = 0; j < D.columns;j++)
+        {
+            D.data[i*D.columns + j] = 1;
+        }
+    }
+}
+
+void gradient_descent(
+    const Matrix2d& X,
+    const Matrix2d& labels,
+    const int iterations,
+    const int learning_rate,
+    Matrix2d& W1,
+    Matrix2d& b1,
+    Matrix2d& W2,
+    Matrix2d& b2,
+    Matrix2d& W3,
+    Matrix2d& b3
+)
+{
+    uniform_initializazion(W1);
+    uniform_initializazion(b1);
+    
+    uniform_initializazion(W2);
+    uniform_initializazion(b2);
+    
+    uniform_initializazion(W3);
+    uniform_initializazion(b3);
+
+    Matrix2d Z1;
+    Z1.rows = b1.rows;
+    Z1.columns = b1.columns;
+    Z1.data = new double[Z1.rows * Z1.columns];
+
+    Matrix2d Z2;
+    Z2.rows = b2.rows;
+    Z2.columns = b2.columns;
+    Z2.data = new double[Z2.rows * Z2.columns];
+
+    Matrix2d Z3;
+    Z3.rows = b3.rows;
+    Z3.columns = b3.columns;
+    Z3.data = new double[Z3.rows * Z3.columns];
+
+    // cached matrices
+    Matrix2d dL_dY3;
+    dL_dY3.rows = Z3.rows;
+    dL_dY3.columns = Z3.columns;
+    dL_dY3.data = new double[dL_dY3.rows*dL_dY3.columns];
+
+    Matrix2d dL_dY2;
+    dL_dY2.rows = Z2.rows;
+    dL_dY2.columns = Z2.columns;
+    dL_dY2.data = new double[dL_dY2.rows*dL_dY2.columns];
+
+    Matrix2d dL_dY1;
+    dL_dY1.rows = Z1.rows;
+    dL_dY1.columns = Z1.columns;
+    dL_dY1.data = new double[dL_dY1.rows*dL_dY1.columns];
+
+    // support matrices for calculating dL_dY2
+    Matrix2d one_col_vec_Z2;
+    one_col_vec_Z2.rows    = Z2.rows;
+    one_col_vec_Z2.columns = Z2.columns;
+    one_col_vec_Z2.data = new double[one_col_vec_Z2.rows * one_col_vec_Z2.columns];
+    one_initializazion(one_col_vec_Z2);
+
+    Matrix2d diff_1_Z2;
+    diff_1_Z2.rows    = Z2.rows;
+    diff_1_Z2.columns = Z2.columns;
+    diff_1_Z2.data = new double[diff_1_Z2.rows * diff_1_Z2.columns]; 
+
+    Matrix2d Z2_dot_diff_1_Z2;
+    Z2_dot_diff_1_Z2.rows    = Z2.rows;
+    Z2_dot_diff_1_Z2.columns = Z2.columns;
+    Z2_dot_diff_1_Z2.data = new double[Z2_dot_diff_1_Z2.rows * Z2_dot_diff_1_Z2.columns]; 
+
+    Matrix2d W3_mmul_dL_dY3;
+    W3_mmul_dL_dY3.rows    = W3.rows;
+    W3_mmul_dL_dY3.columns = dL_dY3.columns;
+    W3_mmul_dL_dY3.data = new double[W3_mmul_dL_dY3.rows * W3_mmul_dL_dY3.columns];
+
+    // support matrices for calculating dL_dY1
+    Matrix2d one_col_vec_Z1;
+    one_col_vec_Z1.rows    = Z1.rows;
+    one_col_vec_Z1.columns = Z1.columns;
+    one_col_vec_Z1.data = new double[one_col_vec_Z1.rows * one_col_vec_Z1.columns];
+    one_initializazion(one_col_vec_Z1);
+
+    Matrix2d diff_1_Z1;
+    diff_1_Z1.rows    = Z1.rows;
+    diff_1_Z1.columns = Z1.columns;
+    diff_1_Z1.data = new double[diff_1_Z1.rows * diff_1_Z1.columns]; 
+
+    Matrix2d Z1_dot_diff_1_Z1;
+    Z1_dot_diff_1_Z1.rows    = Z1.rows;
+    Z1_dot_diff_1_Z1.columns = Z1.columns;
+    Z1_dot_diff_1_Z1.data = new double[Z1_dot_diff_1_Z1.rows * Z1_dot_diff_1_Z1.columns];
+
+    Matrix2d W2_mmul_dL_dY2;
+    W2_mmul_dL_dY2.rows    = W2.rows;
+    W2_mmul_dL_dY2.columns = dL_dY2.columns;
+    W2_mmul_dL_dY2.data = new double[W2_mmul_dL_dY2.rows * W2_mmul_dL_dY2.columns];
+
+    // update matrices
+    Matrix2d dL_dW3;
+    dL_dW3.rows = W3.columns;
+    dL_dW3.columns = W3.rows;
+    dL_dW3.data = new double[dL_dW3.rows*dL_dW3.columns];
+
+    Matrix2d Z2_t;
+    Z2_t.rows = Z2.columns;
+    Z2_t.columns = Z2.rows;
+    Z2_t.data = new double[Z2_t.rows*Z2_t.columns];
+
+    Matrix2d dL_dW2;
+    dL_dW2.rows = W2.columns;
+    dL_dW2.columns = W2.rows;
+    dL_dW2.data = new double[dL_dW2.rows*dL_dW2.columns];
+
+    Matrix2d Z1_t;
+    Z1_t.rows = Z1.columns;
+    Z1_t.columns = Z1.rows;
+    Z1_t.data = new double[Z1_t.rows*Z1_t.columns];
+
+    Matrix2d dL_dW1;
+    dL_dW1.rows = W1.columns;
+    dL_dW1.columns = W1.rows;
+    dL_dW1.data = new double[dL_dW1.rows*dL_dW1.columns];
+
+    Matrix2d X_t;
+    X_t.rows = X.columns;
+    X_t.columns = X.rows;
+    X_t.data = new double[X_t.rows*X_t.columns];
+
+    Matrix2d learning_rate_dL_dW3;
+    learning_rate_dL_dW3.rows = dL_dW3.rows;
+    learning_rate_dL_dW3.columns = dL_dW3.columns;
+    learning_rate_dL_dW3.data = new double [learning_rate_dL_dW3.columns * learning_rate_dL_dW3.rows];
+
+    Matrix2d learning_rate_dL_dW3_t;
+    learning_rate_dL_dW3_t.rows = dL_dW3.columns;
+    learning_rate_dL_dW3_t.columns = dL_dW3.rows;
+    learning_rate_dL_dW3_t.data = new double [learning_rate_dL_dW3_t.columns * learning_rate_dL_dW3_t.rows];
+
+    Matrix2d learning_rate_dL_dW2;
+    learning_rate_dL_dW2.rows = dL_dW2.rows;
+    learning_rate_dL_dW2.columns = dL_dW2.columns;
+    learning_rate_dL_dW2.data = new double [learning_rate_dL_dW2.columns * learning_rate_dL_dW2.rows];
+
+    Matrix2d learning_rate_dL_dW2_t;
+    learning_rate_dL_dW2_t.rows = dL_dW2.columns;
+    learning_rate_dL_dW2_t.columns = dL_dW2.rows;
+    learning_rate_dL_dW2_t.data = new double [learning_rate_dL_dW2_t.columns * learning_rate_dL_dW2_t.rows];
+
+    Matrix2d learning_rate_dL_dW1;
+    learning_rate_dL_dW1.rows = dL_dW1.rows;
+    learning_rate_dL_dW1.columns = dL_dW1.columns;
+    learning_rate_dL_dW1.data = new double [learning_rate_dL_dW1.columns * learning_rate_dL_dW1.rows];
+
+    Matrix2d learning_rate_dL_dW1_t;
+    learning_rate_dL_dW1_t.rows = dL_dW1.columns;
+    learning_rate_dL_dW1_t.columns = dL_dW1.rows;
+    learning_rate_dL_dW1_t.data = new double [learning_rate_dL_dW1_t.columns * learning_rate_dL_dW1_t.rows];
+
+    Matrix2d learning_rate_dL_dY3;
+    learning_rate_dL_dY3.rows = dL_dY3.rows;
+    learning_rate_dL_dY3.columns = dL_dY3.columns;
+    learning_rate_dL_dY3.data = new double [learning_rate_dL_dY3.columns * learning_rate_dL_dY3.rows];
+
+    Matrix2d learning_rate_dL_dY2;
+    learning_rate_dL_dY2.rows = dL_dY2.rows;
+    learning_rate_dL_dY2.columns = dL_dY2.columns;
+    learning_rate_dL_dY2.data = new double [learning_rate_dL_dY2.columns * learning_rate_dL_dY2.rows];
+
+
+    Matrix2d learning_rate_dL_dY1;
+    learning_rate_dL_dY1.rows = dL_dY1.rows;
+    learning_rate_dL_dY1.columns = dL_dY1.columns;
+    learning_rate_dL_dY1.data = new double [learning_rate_dL_dY1.columns * learning_rate_dL_dY1.rows];
+
+    double loss = 0;
+    for(int iter = 1; iter <= iterations;iter++)
+    {
+        loss = forward_propagation(X,labels,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
+        std::printf("[iteration %i] calculated loss: %f\n",iter,loss);
+
+        //calculating cached matrices
+        matrix_diff(Z3,labels,dL_dY3);
+
+        matrix_diff(one_col_vec_Z2,Z2,diff_1_Z2);
+        matrix_dot_product(Z2,diff_1_Z2,Z2_dot_diff_1_Z2);
+        matrix_multiplication(W3,dL_dY3,W3_mmul_dL_dY3);
+        matrix_dot_product(W3_mmul_dL_dY3,Z2_dot_diff_1_Z2,dL_dY2);
+
+        matrix_diff(one_col_vec_Z1,Z1,diff_1_Z1);
+        matrix_dot_product(Z1,diff_1_Z1,Z1_dot_diff_1_Z1);
+        matrix_multiplication(W2,dL_dY2,W2_mmul_dL_dY2);
+        matrix_dot_product(W2_mmul_dL_dY2,Z1_dot_diff_1_Z1,dL_dY1);
+
+        //update W3
+        matrix_multiplication(dL_dY3,Z2_t,dL_dW3);
+        scalar_matrix_dot_product(learning_rate,dL_dW3,learning_rate_dL_dW3);
+        matrix_transpose(learning_rate_dL_dW3,learning_rate_dL_dW3_t);
+        matrix_diff(W3,learning_rate_dL_dW3_t,W3);
+
+        //update b3
+        scalar_matrix_dot_product(learning_rate,dL_dY3,learning_rate_dL_dY3);
+        matrix_diff(b3,learning_rate_dL_dY3,b3);
+
+        //update W2
+        matrix_multiplication(dL_dY2,Z1_t,dL_dW2);
+        scalar_matrix_dot_product(learning_rate,dL_dW2,learning_rate_dL_dW2);
+        matrix_transpose(learning_rate_dL_dW2,learning_rate_dL_dW2_t);
+        matrix_diff(W2,learning_rate_dL_dW2_t,W2);
+
+        //update b2
+        scalar_matrix_dot_product(learning_rate,dL_dY2,learning_rate_dL_dY2);
+        matrix_diff(b2,learning_rate_dL_dY2,b2);
+
+        //update W1
+        matrix_multiplication(dL_dY1,X_t,dL_dW1);
+        scalar_matrix_dot_product(learning_rate,dL_dW1,learning_rate_dL_dW1);
+        matrix_transpose(learning_rate_dL_dW1,learning_rate_dL_dW1_t);
+        matrix_diff(W1,learning_rate_dL_dW1_t,W1);
+
+        //update b1
+        scalar_matrix_dot_product(learning_rate,dL_dY1,learning_rate_dL_dY1);
+        matrix_diff(b1,learning_rate_dL_dY1,b1);
+
+    }
+
+    delete[] Z1.data;
+    delete[] Z2.data;
+    delete[] Z3.data;
+
+    delete[] dL_dY3.data;
+    delete[] dL_dY2.data;
+    delete[] dL_dY1.data;
+
+    delete[] one_col_vec_Z2.data;
+    delete[] diff_1_Z2.data;
+    delete[] Z2_dot_diff_1_Z2.data;
+    delete[] W3_mmul_dL_dY3.data;
+
+    delete[] one_col_vec_Z1.data;
+    delete[] diff_1_Z1.data;
+    delete[] Z1_dot_diff_1_Z1.data;
+    delete[] W2_mmul_dL_dY2.data;
+
+    delete[] dL_dW3.data;
+    delete[] Z2_t.data;
+    delete[] dL_dW2.data;
+    delete[] Z1_t.data;
+    delete[] dL_dW1.data;
+    delete[] X_t.data;
+
+    delete[] learning_rate_dL_dW3.data;
+    delete[] learning_rate_dL_dW2.data;
+    delete[] learning_rate_dL_dW1.data;
+
+    delete[] learning_rate_dL_dW3_t.data;
+    delete[] learning_rate_dL_dW2_t.data;
+    delete[] learning_rate_dL_dW1_t.data;
+
+    delete[] learning_rate_dL_dY3.data;
+    delete[] learning_rate_dL_dY2.data;
+    delete[] learning_rate_dL_dY1.data;
+} 
+
 int main(void)
 {
-    Matrix2d X;
-    X.rows    = 4;
-    X.columns = 3;
-    X.data = new double [4*3];
-
-    X.data[0]  = 3;
-    X.data[1]  = 6;
-    X.data[2]  = 4;
-    X.data[3]  = 4;
-    X.data[4]  = 1;
-    X.data[5]  = 3;
-    X.data[6]  = 2;
-    X.data[7]  = 3;
-    X.data[8]  = 2;
-    X.data[9]  = 5;
-    X.data[10] = 9;
-    X.data[11] = 5;
-
-    Matrix2d W1;
-    W1.rows    = 4;
-    W1.columns = 3;
-    W1.data = new double [4*3];
-
-    W1.data[0]  = 1;
-    W1.data[1]  = 1;
-    W1.data[2]  = 1;
-    W1.data[3]  = 1;
-    W1.data[4]  = 1;
-    W1.data[5]  = 1;
-    W1.data[6]  = 1;
-    W1.data[7]  = 1;
-    W1.data[8]  = 1;
-    W1.data[9]  = 1;
-    W1.data[10] = 1;
-    W1.data[11] = 1;
-
-    Matrix2d b1;
-    b1.rows    = 3;
-    b1.columns = 3;
-    b1.data = new double [3*3];
-
-    b1.data[0]  = 1;
-    b1.data[1]  = 1;
-    b1.data[2]  = 1;
-    b1.data[3]  = 1;
-    b1.data[4]  = 1;
-    b1.data[5]  = 1;
-    b1.data[6]  = 1;
-    b1.data[7]  = 1;
-    b1.data[8]  = 1;
-
-    Matrix2d W2;
-    W2.rows    = 3;
-    W2.columns = 2;
-    W2.data = new double [3*2];
-
-    W2.data[0]  = 1;
-    W2.data[1]  = 1;
-    W2.data[2]  = 1;
-    W2.data[3]  = 1;
-    W2.data[4]  = 1;
-    W2.data[5]  = 1;
-
-    Matrix2d b2;
-    b2.rows    = 2;
-    b2.columns = 3;
-    b2.data = new double [2*3];
-
-    b2.data[0]  = 1;
-    b2.data[1]  = 1;
-    b2.data[2]  = 1;
-    b2.data[3]  = 1;
-    b2.data[4]  = 1;
-    b2.data[5]  = 1;
-
-
-    Matrix2d W3;
-    W3.rows    = 2;
-    W3.columns = 3;
-    W3.data = new double [2*3];
-
-    W3.data[0]  = 1;
-    W3.data[1]  = 1;
-    W3.data[2]  = 1;
-    W3.data[3]  = 1;
-    W3.data[4]  = 1;
-    W3.data[5]  = 1;
-
-    Matrix2d b3;
-    b3.rows    = 3;
-    b3.columns = 3;
-    b3.data = new double [3*3];
-
-    b3.data[0]  = 1;
-    b3.data[1]  = 1;
-    b3.data[2]  = 1;
-    b3.data[3]  = 1;
-    b3.data[4]  = 1;
-    b3.data[5]  = 1;
-    b3.data[6]  = 1;
-    b3.data[7]  = 1;
-    b3.data[8]  = 1;
-
-    Matrix2d labels;
-    labels.rows    = 3;
-    labels.columns = 3;
-    labels.data = new double [3*3];
-
-    labels.data[0]  = 1;
-    labels.data[1]  = 0;
-    labels.data[2]  = 0;
-    labels.data[3]  = 0;
-    labels.data[4]  = 1;
-    labels.data[5]  = 0;
-    labels.data[6]  = 0;
-    labels.data[7]  = 0;
-    labels.data[8]  = 1;
-
-    double loss = forward_propagation(X,labels,W1,b1,W2,b2,W3,b3);
-
-    std::printf("Forward propagation result (loss): %f\n",loss);
-
-    delete[] X.data;
-    delete[] W1.data;
-    delete[] b1.data;
-
-    delete[] W2.data;
-    delete[] b2.data;
-
-    delete[] W3.data;
-    delete[] b3.data;
-
-    delete[] labels.data;
+    std::cout << "Time to test the neural network!";
 
     return 0;
 }
