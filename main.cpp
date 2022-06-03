@@ -700,7 +700,7 @@ int main(void)
     b3.columns = X.columns;
     b3.data = new double[b3.rows*b3.columns];
 
-    gradient_descent(X,labels,500,0.9,W1,b1,W2,b2,W3,b3);
+    gradient_descent(X,labels,500,0.01,W1,b1,W2,b2,W3,b3);
 
     std::cout << std::endl;
 
