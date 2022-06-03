@@ -97,21 +97,7 @@ double forward_propagation(
                    const Matrix2d& b3,
                          Matrix2d& Z3
                 )
-{
-    /*
-    std::printf("X(%i,%i)\n",X.rows,X.columns);
-    std::printf("labels(%i,%i)\n",labels.rows,labels.columns);
-    std::printf("W1(%i,%i)\n",W1.rows,W1.columns);
-    std::printf("b1(%i,%i)\n",b1.rows,b1.columns);
-    std::printf("Z1(%i,%i)\n",Z1.rows,Z1.columns);
-    std::printf("W2(%i,%i)\n",W2.rows,W2.columns);
-    std::printf("b2(%i,%i)\n",b2.rows,b2.columns);
-    std::printf("Z2(%i,%i)\n",Z2.rows,Z2.columns);
-    std::printf("W3(%i,%i)\n",W3.rows,W3.columns);
-    std::printf("b3(%i,%i)\n",b3.rows,b3.columns);
-    std::printf("Z3(%i,%i)\n",Z3.rows,Z3.columns);
-    */
-    
+{    
     /*  FIRST LAYER */
     Matrix2d W1_t;
     W1_t.rows    = W1.columns;
@@ -408,8 +394,6 @@ void gradient_descent(
         
         std::printf("\r[iteration %i] calculated loss: %f",iter,loss);
 
-        //calculating cached matrices
-
         // dL_dY3
         matrix_diff(Z3,labels,dL_dY3);
 
@@ -570,11 +554,117 @@ void read_minst_dataset(const std::string& path,Matrix2d& data,Matrix2d& labels)
     delete[] imageVector;
 }
 
+void softmax_to_one_hot(Matrix2d& output)
+{
+    double *arrayOfLabels = new double[output.columns];
+
+    for(int _example = 0; _example < output.columns;_example++)
+    {
+        int index_of_highest_prob_class = -1;
+        double highest_prob = -1.0;
+
+        for(int _class = 0; _class < output.rows; _class++)
+        {
+            if(output.data[_class*output.columns + _example] > highest_prob)
+            {
+                highest_prob = output.data[_class*output.columns + _example];
+                index_of_highest_prob_class = _class*output.columns;
+            }    
+        }
+        arrayOfLabels[_example] = index_of_highest_prob_class;
+    }
+
+    one_hot_encode(arrayOfLabels,output);
+
+    delete[] arrayOfLabels;
+}
+
+void predict(
+    const Matrix2d& test,
+    const Matrix2d& test_labels,
+    const Matrix2d& W1,
+    const Matrix2d& b1,
+    const Matrix2d& W2,
+    const Matrix2d& b2,
+    const Matrix2d& W3,
+    const Matrix2d& b3
+)
+{
+    Matrix2d new_b1;
+    new_b1.rows    = b1.rows;
+    new_b1.columns = test.columns;
+    new_b1.data = new double[new_b1.rows*new_b1.columns];
+
+    for(int i = 0; i < new_b1.rows;i++)
+    {
+        for(int j = 0; j < new_b1.columns;j++)
+        {
+            new_b1.data[i*new_b1.columns + j] = b1.data[i*new_b1.columns + j];
+        }
+    }
+
+    Matrix2d new_b2;
+    new_b2.rows    = b2.rows;
+    new_b2.columns = test.columns;
+    new_b2.data = new double[new_b2.rows*new_b2.columns];
+
+    for(int i = 0; i < new_b2.rows;i++)
+    {
+        for(int j = 0; j < new_b2.columns;j++)
+        {
+            new_b2.data[i*new_b2.columns + j] = b2.data[i*new_b2.columns + j];
+        }
+    }
+
+    Matrix2d new_b3;
+    new_b3.rows    = b3.rows;
+    new_b3.columns = test.columns;
+    new_b3.data = new double[new_b3.rows*new_b3.columns];
+
+    for(int i = 0; i < new_b3.rows;i++)
+    {
+        for(int j = 0; j < new_b3.columns;j++)
+        {
+            new_b3.data[i*new_b3.columns + j] = b3.data[i*new_b3.columns + j];
+        }
+    }
+
+    Matrix2d Z1;
+    Z1.rows = new_b1.rows;
+    Z1.columns = new_b1.columns;
+    Z1.data = new double[Z1.rows * Z1.columns];
+
+    Matrix2d Z2;
+    Z2.rows = new_b2.rows;
+    Z2.columns = new_b2.columns;
+    Z2.data = new double[Z2.rows * Z2.columns];
+
+    Matrix2d Z3;
+    Z3.rows = new_b3.rows;
+    Z3.columns = new_b3.columns;
+    Z3.data = new double[Z3.rows * Z3.columns];
+
+    double loss = forward_propagation(test,test_labels,W1,new_b1,Z1,W2,new_b2,Z2,W3,new_b3,Z3);
+
+    std::printf("Average loss of test_set: %f\n",loss);
+
+    delete[] Z1.data;
+    delete[] Z2.data;
+    delete[] Z3.data;
+
+    delete[] new_b1.data;
+    delete[] new_b2.data;
+    delete[] new_b3.data;
+}
+
 int main(void)
 {
+    const int TRAINING_EXAMPLES = 10000;
+    const int TEST_EXAMPLES = 100;
+
     Matrix2d X;
     X.rows    = 784;
-    X.columns = 2000;
+    X.columns = TRAINING_EXAMPLES;
     X.data = new double[X.rows*X.columns];
 
     Matrix2d labels;
@@ -610,7 +700,23 @@ int main(void)
     b3.columns = X.columns;
     b3.data = new double[b3.rows*b3.columns];
 
-    gradient_descent(X,labels,500,0.2,W1,b1,W2,b2,W3,b3);
+    gradient_descent(X,labels,500,0.9,W1,b1,W2,b2,W3,b3);
+
+    std::cout << std::endl;
+
+    Matrix2d test;
+    test.rows = 784;
+    test.columns = TEST_EXAMPLES;
+    test.data = new double[test.rows*test.columns];
+
+    Matrix2d test_labels;
+    test_labels.rows = 10;
+    test_labels.columns = test.columns;
+    test_labels.data = new double[test_labels.rows*test_labels.columns];
+
+    read_minst_dataset("/home/andres/basicMatrixOperations/mnist_dataset/mnist_test.csv",test,test_labels);
+
+    predict(test,test_labels,W1,b1,W2,b2,W3,b3);
 
     delete[] X.data;
     delete[] labels.data;
@@ -622,7 +728,8 @@ int main(void)
     delete[] W3.data;
     delete[] b3.data;
 
-    std::cout << std::endl;
+    delete[] test.data;
+    delete[] test_labels.data;
 
     return 0;
 }
