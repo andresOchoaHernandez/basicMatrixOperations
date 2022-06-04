@@ -659,7 +659,7 @@ void predict(
 
 int main(void)
 {
-    const int TRAINING_EXAMPLES = 10000;
+    const int TRAINING_EXAMPLES = 1000;
     const int TEST_EXAMPLES = 100;
 
     Matrix2d X;
@@ -677,7 +677,7 @@ int main(void)
     Matrix2d W1,b1,W2,b2,W3,b3;
 
     W1.rows = X.rows;
-    W1.columns = 6;
+    W1.columns = 100;
     W1.data = new double[W1.rows*W1.columns];
 
     b1.rows = W1.columns;
@@ -685,7 +685,7 @@ int main(void)
     b1.data = new double[b1.rows*b1.columns];
 
     W2.rows = W1.columns;
-    W2.columns = 4;
+    W2.columns = 50;
     W2.data = new double[W2.rows*W2.columns];
 
     b2.rows = W2.columns;
@@ -700,7 +700,7 @@ int main(void)
     b3.columns = X.columns;
     b3.data = new double[b3.rows*b3.columns];
 
-    gradient_descent(X,labels,500,0.01,W1,b1,W2,b2,W3,b3);
+    gradient_descent(X,labels,300,0.1,W1,b1,W2,b2,W3,b3);
 
     std::cout << std::endl;
 
