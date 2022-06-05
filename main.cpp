@@ -239,7 +239,6 @@ void gradient_descent(
         labels_tr = {.data=labels.data, .rows=labels.rows, .columns=n_tr_examples};
         X_val = {.data=X.data + n_tr_examples, .rows=X.rows, .columns=n_val_examples};
         labels_val = {.data=labels.data + n_tr_examples, .rows=labels.rows, .columns=n_val_examples};
-        b1.columns = b2.columns = b3.columns = X_tr.columns;
     }
     else {
         X_tr = X;
@@ -408,8 +407,14 @@ void gradient_descent(
     learning_rate_dL_dY1.data = new double [learning_rate_dL_dY1.columns * learning_rate_dL_dY1.rows];
 
     double loss = 0;
+    double val_loss = 0;
     for(int iter = 1; iter <= iterations;iter++)
     {
+        // Specify number of columns of biases because, in case of validation, these will change and will need to be
+        // re-set here before the forward propagation on the training data.
+        // This happens to manually simulate the tensor broadcasting of PyTorch/Tensorflow
+        b1.columns = b2.columns = b3.columns = Z1.columns = Z2.columns = Z3.columns = X_tr.columns;
+        std::printf("\n\n%i - %i - %i\n\n", b1.columns, b2.columns, b3.columns);
         loss = forward_propagation(X_tr,labels_tr,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
         
         std::printf("\r[iteration %i] calculated loss: %f",iter,loss);
@@ -458,6 +463,15 @@ void gradient_descent(
         //update b1
         scalar_matrix_dot_product(learning_rate,dL_dY1,learning_rate_dL_dY1);
         matrix_diff(b1,learning_rate_dL_dY1,b1);
+
+        // validation
+        if (validation) {
+            b1.columns = b2.columns = b3.columns = Z1.columns = Z2.columns = Z3.columns = X_tr.columns;
+            std::printf("\n\n%i - %i - %i\n\n", b1.columns, b2.columns, b3.columns);
+            val_loss = forward_propagation(X_val,labels_val,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
+            exit(0);
+            std::printf(",\t validation loss: %f", val_loss);
+        }
 
         std::cout << std::flush;
     }
