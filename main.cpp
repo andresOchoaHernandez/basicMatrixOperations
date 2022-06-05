@@ -223,9 +223,29 @@ void gradient_descent(
     Matrix2d& W2,
     Matrix2d& b2,
     Matrix2d& W3,
-    Matrix2d& b3
+    Matrix2d& b3,
+    const bool validation = true,
+    const float validation_split = 0.3
 )
 {
+    // TODO: shuffle examples
+
+    // create validation set if needed
+    Matrix2d X_tr, X_val, labels_tr, labels_val;
+    if (validation){
+        int n_val_examples = int(validation_split * X.columns);
+        int n_tr_examples = X.columns - n_val_examples;
+        X_tr = {.data=X.data, .rows=X.rows, .columns=n_tr_examples};
+        labels_tr = {.data=labels.data, .rows=labels.rows, .columns=n_tr_examples};
+        X_val = {.data=X.data + n_tr_examples, .rows=X.rows, .columns=n_val_examples};
+        labels_val = {.data=labels.data + n_tr_examples, .rows=labels.rows, .columns=n_val_examples};
+        b1.columns = b2.columns = b3.columns = X_tr.columns;
+    }
+    else {
+        X_tr = X;
+        labels_tr = labels;
+    }
+
     uniform_initializazion(W1);
     uniform_initializazion(b1);
     
@@ -337,8 +357,8 @@ void gradient_descent(
     dL_dW1.data = new double[dL_dW1.rows*dL_dW1.columns];
 
     Matrix2d X_t;
-    X_t.rows = X.columns;
-    X_t.columns = X.rows;
+    X_t.rows = X_tr.columns;
+    X_t.columns = X_tr.rows;
     X_t.data = new double[X_t.rows*X_t.columns];
 
     Matrix2d learning_rate_dL_dW3;
@@ -390,12 +410,12 @@ void gradient_descent(
     double loss = 0;
     for(int iter = 1; iter <= iterations;iter++)
     {
-        loss = forward_propagation(X,labels,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
+        loss = forward_propagation(X_tr,labels_tr,W1,b1,Z1,W2,b2,Z2,W3,b3,Z3);
         
         std::printf("\r[iteration %i] calculated loss: %f",iter,loss);
 
         // dL_dY3
-        matrix_diff(Z3,labels,dL_dY3);
+        matrix_diff(Z3,labels_tr,dL_dY3);
 
         // dL_dY2
         matrix_diff(one_col_vec_Z2,Z2,diff_1_Z2);
@@ -672,7 +692,7 @@ int main(void)
     labels.columns = X.columns;
     labels.data = new double[labels.rows*labels.columns];
 
-    read_minst_dataset("/home/andres/basicMatrixOperations/mnist_dataset/mnist_train.csv",X,labels);
+    read_minst_dataset("/mnt/d/projects/basicMatrixOperations/mnist_dataset/mnist_train.csv",X,labels);
 
     Matrix2d W1,b1,W2,b2,W3,b3;
 
@@ -714,7 +734,7 @@ int main(void)
     test_labels.columns = test.columns;
     test_labels.data = new double[test_labels.rows*test_labels.columns];
 
-    read_minst_dataset("/home/andres/basicMatrixOperations/mnist_dataset/mnist_test.csv",test,test_labels);
+    read_minst_dataset("/mnt/d/projects/basicMatrixOperations/mnist_dataset/mnist_test.csv",test,test_labels);
 
     predict(test,test_labels,W1,b1,W2,b2,W3,b3);
 
