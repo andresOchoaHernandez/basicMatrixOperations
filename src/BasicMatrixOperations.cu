@@ -8,7 +8,7 @@ void matrix_multiplication_kernel(const double *A,const int A_columns_B_rows,con
     int row    = blockIdx.y * blockDim.y + threadIdx.y;
     int column = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if(row * C_columns + column >= C_rows * C_columns) return;
+    if(row >= C_rows || column >= C_columns) return;
 
     double sum = 0;
     for(int k = 0; k < A_columns_B_rows;k++)

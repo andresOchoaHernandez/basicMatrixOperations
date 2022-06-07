@@ -16,15 +16,11 @@ int matrix_mul_test_one()
     A.data = new double[A.rows*A.columns];
     one_initialization(A);
 
-    print_matrix(A);
-
     Matrix2d B;
     B.rows = NB;
     B.columns = MB;
     B.data = new double[B.rows*B.columns];
     one_initialization(B);
-
-    print_matrix(B);
 
     Matrix2d C;
     C.rows    = A.rows;
@@ -33,8 +29,6 @@ int matrix_mul_test_one()
 
     int code =  
     matrix_multiplication(A,B,C);
-
-    print_matrix(C);
 
     if(code == -1) return -1;
 

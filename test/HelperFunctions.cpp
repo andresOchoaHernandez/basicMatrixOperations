@@ -1,3 +1,5 @@
+#include <random>
+
 #include "HelperFunctions.hpp"
 
 void one_initialization(Matrix2d &A)
@@ -35,4 +37,19 @@ int check_if_correct(const Matrix2d &A,const Matrix2d &A_t)
     }
 
     return 0;
+}
+
+void uniform_initialization(Matrix2d& D)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> distr(0,1);
+
+    for(int i = 0; i < D.rows;i++)
+    {
+        for(int j = 0; j < D.columns;j++)
+        {
+            D.data[i*D.columns + j] = distr(gen);
+        }
+    }
 }

@@ -24,9 +24,6 @@ int matrix_transpose_test_one()
     if(matrix_transpose(A,A_t) == -1) return -1;
     if(check_if_correct(A,A_t) == -1)return -1;
 
-    print_matrix(A);
-    print_matrix(A_t);
-
     delete[] A.data;
     delete[] A_t.data;
 

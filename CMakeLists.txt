@@ -32,15 +32,15 @@ if(CUDA_FOUND)
     COMPILE_OUTPUT_VARIABLE COMPILE_OUTPUT_VAR
     RUN_OUTPUT_VARIABLE RUN_OUTPUT_VAR)
     if("${COMPILE_RESULT_VAR}" AND ("${RUN_RESULT_VAR}" GREATER 0))
-        message("Found : ${RUN_RESULT_VAR} cuda capable device(s)")    
+        message("-- Found : ${RUN_RESULT_VAR} cuda capable device(s)")    
         set(CUDA_HAVE_GPU TRUE)
     else()
-        message("Found cuda packages but there's no cuda capable device")
+        message("-- Found cuda packages but there's no cuda capable device")
         set(CUDA_HAVE_GPU FALSE)
     endif()
 
 else()
-    message("Cuda packages not found")
+    message("-- Cuda packages not found")
 endif(CUDA_FOUND)
 
 
@@ -69,6 +69,7 @@ target_sources(
     test1
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
+    PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.cpp
 )
 
@@ -93,6 +94,7 @@ target_sources(
     test2
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
+    PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.cpp
 )
 
@@ -101,3 +103,32 @@ add_test(
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build/
     COMMAND ./test2
 )
+
+# ============ GPU MATRIX MUL =====================
+if(CUDA_FOUND AND CUDA_HAVE_GPU)
+    add_executable(gpu_test_1 ${PROJECT_SOURCE_DIR}/test/TestGpuMatrixMultiplication.cu)
+
+    target_include_directories(
+        gpu_test_1
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/
+    )
+
+    target_sources(
+        gpu_test_1
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.cuh
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cu
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.hpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.cpp
+    )
+
+    enable_testing()
+
+    add_test(
+        NAME gpu_test_1
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build/
+        COMMAND ./gpu_test_1
+    )
+endif()
