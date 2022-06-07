@@ -2,9 +2,6 @@ project(basicMatrixOperations)
 
 cmake_minimum_required(VERSION 3.8.2)
 
-# TODO CHECK IF CUDA PCKG IS INSTALLED, THEN CHECK IF THERE'S A CUDA CAPABLE DEVICE.
-# IF BOTH CONDITIONS ARE TRUE THEN COMPILE CUDA HEADER WITH HIS IMPL (so the compiler must be set to nvcc)
-
 # ======================== MAIN ========================
 add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
 
