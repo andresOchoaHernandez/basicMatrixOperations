@@ -1,6 +1,5 @@
 #include <iostream>
 #include <chrono>
-//#include <stdexcept>
 
 #include "BasicMatrixOperations.hpp"
 
@@ -20,9 +19,14 @@ void print_matrix(const Matrix2d& A)
 
 int matrix_multiplication(const Matrix2d& A,const Matrix2d& B,Matrix2d& C)
 {
-    if( A.columns != B.rows ){std::cerr << "matrix_A columns don't match matrix_B rows\n";
-    return -1;}
-    if((A.rows != C.rows) || ( B.columns != C.columns) ){std::cerr << "given matrix_C dimensions\n";}
+    if( (A.columns != B.rows) || (A.rows != C.rows) || ( B.columns != C.columns) )
+    {
+        std::cerr << "Given matrices' dimensions don't match:"           << std::endl
+                  << "param : A (" << A.rows <<" x " << A.columns << ")" << std::endl
+                  << "param : B (" << B.rows <<" x " << B.columns << ")" << std::endl
+                  << "param : C (" << C.rows <<" x " << C.columns << ")" << std::endl;
+        return -1;
+    }
 
     for(int rows = 0; rows < C.rows;rows++)
     {
@@ -52,10 +56,10 @@ int matrix_dot_product(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
       )
     {
 
-        std::cerr << "Given matrices' dimensions don't match:"              << std::endl
-                  << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
-                  << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
-                  << "param : C ("  << C.rows  <<" x " << C.columns  << ")" << std::endl;
+        std::cerr << "Given matrices' dimensions don't match:"           << std::endl
+                  << "param : A (" << A.rows <<" x " << A.columns << ")" << std::endl
+                  << "param : B (" << B.rows <<" x " << B.columns << ")" << std::endl
+                  << "param : C (" << C.rows <<" x " << C.columns << ")" << std::endl;
         return -1;
     }
 
@@ -72,7 +76,13 @@ int matrix_dot_product(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
 
 int scalar_matrix_dot_product(const double scalar, const Matrix2d& A,Matrix2d& C)
 {
-    if( (A.columns != C.columns) || (A.rows != C.rows) ){std::cerr << "given matrix's dimensions don't match\n";return -1;}
+    if( (A.columns != C.columns) || (A.rows != C.rows) )
+    {
+        std::cerr << "Given matrices' dimensions don't match:"            << std::endl
+                  << "param A : (" << A.rows << " x " << A.columns << ")" << std::endl
+                  << "param C : (" << C.rows << " x " << C.columns << ")" << std::endl;
+        return -1;
+    }
 
     for(int i = 0; i < A.rows;i++)
     {
@@ -87,7 +97,13 @@ int scalar_matrix_dot_product(const double scalar, const Matrix2d& A,Matrix2d& C
 
 int matrix_transpose(const Matrix2d& A,Matrix2d& A_t)
 {
-    if( (A.rows != A_t.columns) || (A.columns != A_t.rows) ){std::cerr << "given matrix's dimensions don't match\n";return -1;}
+    if( (A.rows != A_t.columns) || (A.columns != A_t.rows) )
+    {
+        std::cerr << "Given matrices' dimensions don't match:"                 << std::endl
+                  << "param A  : (" << A.rows << " x " << A.columns << ")"     << std::endl
+                  << "param A_t: (" << A_t.rows << " x " << A_t.columns << ")" << std::endl;
+        return -1;
+    }
 
     for(int i = 0; i < A_t.rows;i++)
     {
@@ -111,10 +127,10 @@ int matrix_sum(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
          )
       )
     {
-        std::cerr << "Given matrices' dimensions don't match:"              << std::endl
-                  << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
-                  << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
-                  << "param : C ("  << C.rows  <<" x " << C.columns  << ")" << std::endl;
+        std::cerr << "Given matrices' dimensions don't match:"             << std::endl
+                  << "param : A (" << A.rows   <<" x " << A.columns << ")" << std::endl
+                  << "param : B ("  << B.rows  <<" x " << B.columns << ")" << std::endl
+                  << "param : C ("  << C.rows  <<" x " << C.columns << ")" << std::endl;
         return -1;
     }
 
@@ -141,7 +157,7 @@ int matrix_diff(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
       )
     {
         std::cerr << "Given matrices' dimensions don't match:"              << std::endl
-                  << "param : A (" << A.rows <<" x " << A.columns << ")"    << std::endl
+                  << "param : A ("  << A.rows  <<" x " << A.columns  << ")" << std::endl
                   << "param : B ("  << B.rows  <<" x " << B.columns  << ")" << std::endl
                   << "param : C ("  << C.rows  <<" x " << C.columns  << ")" << std::endl;
         return -1;

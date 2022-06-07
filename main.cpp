@@ -7,6 +7,10 @@
 
 #include "BasicMatrixOperations.hpp"
 
+#ifdef USE_GPU_FUNCTIONS
+    #include "BasicMatrixOperations.cuh"
+#endif
+
 void sigmoid(const Matrix2d &y, Matrix2d &z)
 {
     if(y.rows != z.rows || y.columns != z.columns)
@@ -191,7 +195,7 @@ void uniform_initializazion(Matrix2d& D)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(0,1);
+    std::uniform_real_distribution<> distr(0,1);
 
     for(int i = 0; i < D.rows;i++)
     {
