@@ -4,14 +4,14 @@
 #include "BasicMatrixOperations.cuh"
 #include "HelperFunctions.hpp"
 
-const int NA = 33;
-const int MA = 5;
+const int NA = 509;
+const int MA = 675;
 const int NB = MA;
-const int MB = 7;
+const int MB = 413;
 
 bool are_double_nearly_equal(const double a,const double b)
 {
-    if(std::abs(a-b) < 0.1)
+    if(std::abs(a-b) < 0.00001)
     {
         return true;
     }
@@ -46,9 +46,6 @@ int gpu_matrix_mul_test_one()
     C_device.data = new double[C_device.rows*C_device.columns];
 
     gpu_matrix_multiplication(A,B,C_device);
-
-    print_matrix(C_host);
-    print_matrix(C_device);
 
     int correct = 0;
 

@@ -39,10 +39,8 @@ int gpu_matrix_multiplication(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
     cudaMemcpy(d_A,A.data,static_cast<size_t>(A.rows * A.columns * sizeof(double)),cudaMemcpyHostToDevice);
     cudaMemcpy(d_B,B.data,static_cast<size_t>(B.rows * B.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
-    dim3 gridDim(C.rows/32,C.columns/32,1);
-    if(C.rows    % 32 != 0)gridDim.x++;
-    if(C.columns % 32 != 0)gridDim.y++;
     dim3 blockDim(32,32,1);
+    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
 
     matrix_multiplication_kernel<<<gridDim,blockDim>>>(d_A,A.columns,d_B,d_C,C.rows,C.columns);
 
