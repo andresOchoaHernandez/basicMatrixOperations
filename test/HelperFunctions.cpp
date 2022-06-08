@@ -13,6 +13,17 @@ void one_initialization(Matrix2d &A)
     }
 }
 
+void zero_initialization(Matrix2d &A)
+{
+    for (int i = 0; i < A.rows;i++)
+    {
+        for(int j = 0;j< A.columns; j++)
+        {
+            A.data[i*A.columns+j] = 0;
+        }
+    }
+}
+
 void fill_matrix(Matrix2d &A)
 {
     double value = 1;
@@ -52,4 +63,14 @@ void uniform_initialization(Matrix2d& D)
             D.data[i*D.columns + j] = distr(gen);
         }
     }
+}
+
+bool are_double_nearly_equal(const double a,const double b)
+{
+    if(std::abs(a-b) < 0.00001)
+    {
+        return true;
+    }
+
+    return false;
 }

@@ -9,16 +9,6 @@ const int MA = 675;
 const int NB = MA;
 const int MB = 413;
 
-bool are_double_nearly_equal(const double a,const double b)
-{
-    if(std::abs(a-b) < 0.00001)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 int gpu_matrix_mul_test_one()
 {
     Matrix2d A;
@@ -72,7 +62,6 @@ int gpu_matrix_mul_test_one()
 
 int main(void)
 {
-
     if(gpu_matrix_mul_test_one() == -1){
         std::cout << "GpuMatrixMulTestOne [FAILED]\n";
         return -1;

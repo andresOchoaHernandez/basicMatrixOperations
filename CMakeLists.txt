@@ -131,4 +131,52 @@ if(CUDA_FOUND AND CUDA_HAVE_GPU)
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build/
         COMMAND ./gpu_test_1
     )
+
+    add_executable(gpu_test_2 ${PROJECT_SOURCE_DIR}/test/TestGpuMatrixTranspose.cu)
+
+    target_include_directories(
+        gpu_test_2
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/
+    )
+
+    target_sources(
+        gpu_test_2
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.cuh
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cu
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.hpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.cpp
+    )
+
+    add_test(
+        NAME gpu_test_2
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build/
+        COMMAND ./gpu_test_2
+    )
+
+    add_executable(gpu_test_3 ${PROJECT_SOURCE_DIR}/test/TestGpuMatrixArithmetic.cu)
+
+    target_include_directories(
+        gpu_test_3
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/
+    )
+
+    target_sources(
+        gpu_test_3
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.cuh
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cu
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.hpp
+        PRIVATE ${PROJECT_SOURCE_DIR}/test/HelperFunctions.cpp
+    )
+
+    add_test(
+        NAME gpu_test_3
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build/
+        COMMAND ./gpu_test_3
+    )
 endif()
