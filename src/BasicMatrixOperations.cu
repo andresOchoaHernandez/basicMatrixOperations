@@ -5,18 +5,34 @@
 __global__
 void matrix_multiplication_kernel(const double *A,const int A_columns_B_rows,const double *B,double *C,const int C_rows,const int C_columns)
 {
-    int row    = blockIdx.y * blockDim.y + threadIdx.y;
-    int column = blockIdx.x * blockDim.x + threadIdx.x;
+    int row    = blockIdx.y * 32 + threadIdx.y;
+    int column = blockIdx.x * 32 + threadIdx.x;
 
-    if(row >= C_rows || column >= C_columns) return;
+    __shared__ double A_buffer[32][32];
+    __shared__ double B_buffer[32][32];
 
-    double sum = 0;
-    for(int k = 0; k < A_columns_B_rows;k++)
+    A_buffer[threadIdx.y][threadIdx.x] = 0;
+    B_buffer[threadIdx.y][threadIdx.x] = 0;
+    __syncthreads();
+
+    double pvalue = 0.0;
+    for(int m = 0; m < (A_columns_B_rows + 32 -1)/32;m++)
     {
-        sum += A[row * A_columns_B_rows + k] * B[k * C_columns + column]; 
+        A_buffer[threadIdx.y][threadIdx.x] = A[row                  * A_columns_B_rows + (m*32 + threadIdx.x)];
+        B_buffer[threadIdx.y][threadIdx.x] = B[(m*32 + threadIdx.y) * C_columns        + column              ];
+        __syncthreads();
+
+        for(int k = 0; k < 32; k++)
+        {
+            pvalue += A_buffer[threadIdx.y][k] * B_buffer[k][threadIdx.x];
+        }
+        __syncthreads();
     }
- 
-    C[row * C_columns + column] = sum;
+
+    if(row < C_rows && column < C_columns)
+    {
+        C[row * C_columns + column] = pvalue;
+    }
 }
 __host__
 int gpu_matrix_multiplication(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
@@ -40,7 +56,7 @@ int gpu_matrix_multiplication(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
     cudaMemcpy(d_B,B.data,static_cast<size_t>(B.rows * B.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((C.columns + 32 -1)/32,(C.rows + 32 -1)/32,1);
 
     matrix_multiplication_kernel<<<gridDim,blockDim>>>(d_A,A.columns,d_B,d_C,C.rows,C.columns);
 
@@ -87,7 +103,7 @@ int gpu_matrix_transpose(const Matrix2d& A,Matrix2d& A_t)
     cudaMemcpy(d_A,A.data,static_cast<size_t>(A.rows * A.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((A.columns + 32 -1)/32 + 1,(A.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((A.columns + 32 -1)/32,(A.rows + 32 -1)/32,1);
 
     matrix_transpose_kernel<<<gridDim,blockDim>>>(d_A,d_A_t,A.rows,A.columns);
 
@@ -145,7 +161,7 @@ int gpu_matrix_dot_product(const Matrix2d& A, const Matrix2d& B,Matrix2d& C)
     cudaMemcpy(d_B,B.data,static_cast<size_t>(B.rows * B.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((C.columns + 32 -1)/32,(C.rows + 32 -1)/32,1);
 
     matrix_dot_product_kernel<<<gridDim,blockDim>>>(d_A,d_B,d_C,C.rows,C.columns);
 
@@ -193,7 +209,7 @@ int gpu_scalar_matrix_dot_product(const double scalar, const Matrix2d& A,Matrix2
     cudaMemcpy(d_A,A.data,static_cast<size_t>(A.rows * A.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((C.columns + 32 -1)/32,(C.rows + 32 -1)/32,1);
 
     scalar_matrix_dot_product_kernel<<<gridDim,blockDim>>>(scalar,d_A,d_C,C.rows,C.columns);
 
@@ -249,7 +265,7 @@ int gpu_matrix_sum(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
     cudaMemcpy(d_B,B.data,static_cast<size_t>(B.rows * B.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((C.columns + 32 -1)/32,(C.rows + 32 -1)/32,1);
 
     matrix_sum_kernel<<<gridDim,blockDim>>>(d_A,d_B,d_C,C.rows,C.columns);
 
@@ -306,7 +322,7 @@ int gpu_matrix_diff(const Matrix2d& A,const Matrix2d& B, Matrix2d& C)
     cudaMemcpy(d_B,B.data,static_cast<size_t>(B.rows * B.columns * sizeof(double)),cudaMemcpyHostToDevice);
 
     dim3 blockDim(32,32,1);
-    dim3 gridDim((C.columns + 32 -1)/32 + 1,(C.rows + 32 -1)/32 + 1,1);
+    dim3 gridDim((C.columns + 32 -1)/32,(C.rows + 32 -1)/32,1);
 
     matrix_diff_kernel<<<gridDim,blockDim>>>(d_A,d_B,d_C,C.rows,C.columns);
 
