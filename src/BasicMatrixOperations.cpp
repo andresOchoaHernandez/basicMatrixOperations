@@ -10,7 +10,7 @@ void print_matrix(const Matrix2d& A)
     {
         for(int j = 0;j < A.columns; j++)
         {
-            std::printf("%f ",A.data[i*A.columns+j]);
+            std::printf("%.2f ",A.data[i*A.columns+j]);
         }
         std::printf("\n");
     }

@@ -18,10 +18,21 @@ void matrix_multiplication_kernel(const double *A,const int A_columns_B_rows,con
     double pvalue = 0.0;
     for(int m = 0; m < (A_columns_B_rows + 32 -1)/32;m++)
     {
-        A_buffer[threadIdx.y][threadIdx.x] = A[row                  * A_columns_B_rows + (m*32 + threadIdx.x)];
-        B_buffer[threadIdx.y][threadIdx.x] = B[(m*32 + threadIdx.y) * C_columns        + column              ];
+        A_buffer[threadIdx.y][threadIdx.x] = 0;
+        B_buffer[threadIdx.y][threadIdx.x] = 0;
         __syncthreads();
 
+        if(row < C_rows && (m*32 + threadIdx.x) < A_columns_B_rows)
+        {
+            A_buffer[threadIdx.y][threadIdx.x] = A[row                  * A_columns_B_rows + (m*32 + threadIdx.x)];
+        }
+        
+        if((m*32 + threadIdx.y) < A_columns_B_rows && column < C_columns)
+        {
+            B_buffer[threadIdx.y][threadIdx.x] = B[(m*32 + threadIdx.y) * C_columns        + column              ];
+        }
+        __syncthreads();
+        
         for(int k = 0; k < 32; k++)
         {
             pvalue += A_buffer[threadIdx.y][k] * B_buffer[k][threadIdx.x];

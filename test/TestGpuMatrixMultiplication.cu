@@ -4,10 +4,10 @@
 #include "BasicMatrixOperations.cuh"
 #include "HelperFunctions.hpp"
 
-const int NA = 723;
-const int MA = 334;
+const int NA = 1025;
+const int MA = 65;
 const int NB = MA;
-const int MB = 71;
+const int MB = 97;
 
 int gpu_matrix_mul_test_one()
 {
@@ -51,11 +51,6 @@ int gpu_matrix_mul_test_one()
             }
         }
     }
-
-    //print_matrix(A);
-    //print_matrix(B);
-    //print_matrix(C_host);
-    //print_matrix(C_device);
 
     delete[] A.data;
     delete[] B.data;
