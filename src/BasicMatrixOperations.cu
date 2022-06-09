@@ -86,9 +86,21 @@ void matrix_transpose_kernel(const double *A,double *A_t,const int A_rows,const 
     int row    = blockIdx.y * blockDim.y + threadIdx.y; 
     int column = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if(row >= A_rows || column >= A_columns) return;
+    __shared__ double A_buffer[32][32];
 
-    A_t[column*A_rows + row] = A[row*A_columns + column];
+    if(row < A_rows && column < A_columns)
+    {
+        A_buffer[threadIdx.y][threadIdx.x] = A[row * A_columns + column];
+    }
+    __syncthreads();
+
+    row    =  blockIdx.x * 32 + threadIdx.y;
+    column =  blockIdx.y * 32 + threadIdx.x;
+
+    if(row < A_columns && column < A_rows)
+    {
+        A_t[row*A_rows+column] = A_buffer[threadIdx.x][threadIdx.y];
+    }
 }
 
 __host__
@@ -135,7 +147,14 @@ void matrix_dot_product_kernel(const double *A, const double *B,double *C, const
 
     if(row >= C_rows || column >= C_columns) return;
 
-    C[row * C_columns + column] = A[row*C_columns+column] * B[row*C_columns+column];
+    __shared__ double A_buffer[32][32];
+    __shared__ double B_buffer[32][32];
+
+    A_buffer[threadIdx.y][threadIdx.x] = A[row*C_columns + column];
+    B_buffer[threadIdx.y][threadIdx.x] = B[row*C_columns + column];
+    __syncthreads();
+
+    C[row * C_columns + column] = A_buffer[threadIdx.y][threadIdx.x] * B_buffer[threadIdx.y][threadIdx.x];
 }
 
 __host__
@@ -194,7 +213,12 @@ void scalar_matrix_dot_product_kernel(const double scalar, const double *A,doubl
 
     if(row >= C_rows || column >= C_columns) return;
 
-    C[row * C_columns + column] = scalar * A[row*C_columns+column];
+    __shared__ double A_buffer[32][32];
+
+    A_buffer[threadIdx.y][threadIdx.x] = A[row*C_columns + column];
+    __syncthreads();
+
+    C[row * C_columns + column] = scalar * A_buffer[threadIdx.y][threadIdx.x];
 }
 
 __host__
@@ -239,7 +263,14 @@ void matrix_sum_kernel(const double *A,const double *B, double *C,const int C_ro
 
     if(row >= C_rows || column >= C_columns) return;
 
-    C[row * C_columns + column] = A[row*C_columns+column] + B[row*C_columns+column];
+    __shared__ double A_buffer[32][32];
+    __shared__ double B_buffer[32][32];
+
+    A_buffer[threadIdx.y][threadIdx.x] = A[row*C_columns + column];
+    B_buffer[threadIdx.y][threadIdx.x] = B[row*C_columns + column];
+    __syncthreads();
+
+    C[row * C_columns + column] = A_buffer[threadIdx.y][threadIdx.x] + B_buffer[threadIdx.y][threadIdx.x];
 }
 
 __host__
@@ -296,7 +327,14 @@ void matrix_diff_kernel(const double *A,const double *B, double *C,const int C_r
 
     if(row >= C_rows || column >= C_columns) return;
 
-    C[row * C_columns + column] = A[row*C_columns+column] - B[row*C_columns+column];
+    __shared__ double A_buffer[32][32];
+    __shared__ double B_buffer[32][32];
+
+    A_buffer[threadIdx.y][threadIdx.x] = A[row*C_columns + column];
+    B_buffer[threadIdx.y][threadIdx.x] = B[row*C_columns + column];
+    __syncthreads();
+
+    C[row * C_columns + column] = A_buffer[threadIdx.y][threadIdx.x] - B_buffer[threadIdx.y][threadIdx.x];
 }
 
 __host__

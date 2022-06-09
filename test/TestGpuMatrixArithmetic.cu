@@ -3,8 +3,8 @@
 #include "HelperFunctions.hpp"
 #include "BasicMatrixOperations.cuh"
 
-const int N = 1235;
-const int M = 5324;
+const int N = 12;
+const int M = 15;
 
 int check_correctness(const Matrix2d& C_host,const Matrix2d& C_device)
 {

@@ -3,8 +3,8 @@
 #include "HelperFunctions.hpp"
 #include "BasicMatrixOperations.cuh"
 
-const int N = 100;
-const int M = 330;
+const int N = 7323;
+const int M = 332;
 
 int gpu_matrix_transpose_test_one()
 {
