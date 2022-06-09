@@ -3,16 +3,16 @@ project(basicMatrixOperations)
 cmake_minimum_required(VERSION 3.8.2)
 
 # ======================== MAIN ========================
-add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp)
+add_executable(nn ${PROJECT_SOURCE_DIR}/nn.cpp)
 
 target_include_directories(
-    main
+    nn
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/
     PRIVATE ${PROJECT_SOURCE_DIR}/src/
 )
 
 target_sources(
-    main
+    nn
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
 )
@@ -47,9 +47,19 @@ endif(CUDA_FOUND)
 if(CUDA_FOUND AND CUDA_HAVE_GPU)
     add_definitions(-DUSE_GPU_FUNCTIONS=TRUE)
 
+    add_executable(gpu_nn ${PROJECT_SOURCE_DIR}/gpu_nn.cpp)
+
+    target_include_directories(
+        gpu_nn
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/
+    )
+    
     target_sources(
-        main
+        gpu_nn
+        PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.hpp
         PUBLIC  ${PROJECT_SOURCE_DIR}/include/BasicMatrixOperations.cuh
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cpp
         PRIVATE ${PROJECT_SOURCE_DIR}/src/BasicMatrixOperations.cu
     )
 endif()

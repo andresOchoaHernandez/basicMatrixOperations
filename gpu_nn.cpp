@@ -4,12 +4,10 @@
 #include <random>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 #include "BasicMatrixOperations.hpp"
-
-#ifdef USE_GPU_FUNCTIONS
-    #include "BasicMatrixOperations.cuh"
-#endif
+#include "BasicMatrixOperations.cuh"
 
 void sigmoid(const Matrix2d &y, Matrix2d &z)
 {
@@ -108,7 +106,7 @@ double forward_propagation(
     W1_t.columns = W1.rows;
     W1_t.data = new double[W1_t.rows * W1_t.columns];
 
-    matrix_transpose(W1,W1_t);
+    gpu_matrix_transpose(W1,W1_t);
 
     Matrix2d Y1;
     Y1.rows    = W1_t.rows;
@@ -120,9 +118,9 @@ double forward_propagation(
     W1_t_x_X.columns = Y1.columns;
     W1_t_x_X.data = new double[W1_t_x_X.rows*W1_t_x_X.columns];
 
-    matrix_multiplication(W1_t,X,W1_t_x_X);
+    gpu_matrix_multiplication(W1_t,X,W1_t_x_X);
 
-    matrix_sum(W1_t_x_X,b1,Y1);
+    gpu_matrix_sum(W1_t_x_X,b1,Y1);
     
     sigmoid(Y1,Z1);
 
@@ -132,7 +130,7 @@ double forward_propagation(
     W2_t.columns = W2.rows;
     W2_t.data = new double[W2_t.rows * W2_t.columns];
 
-    matrix_transpose(W2,W2_t);
+    gpu_matrix_transpose(W2,W2_t);
 
     Matrix2d Y2;
     Y2.rows    = W2_t.rows;
@@ -144,9 +142,9 @@ double forward_propagation(
     W2_t_x_Z1.columns = Y2.columns;
     W2_t_x_Z1.data = new double[W2_t_x_Z1.rows*W2_t_x_Z1.columns];
 
-    matrix_multiplication(W2_t,Z1,W2_t_x_Z1);
+    gpu_matrix_multiplication(W2_t,Z1,W2_t_x_Z1);
 
-    matrix_sum(W2_t_x_Z1,b2,Y2);
+    gpu_matrix_sum(W2_t_x_Z1,b2,Y2);
     
     sigmoid(Y2,Z2);
 
@@ -156,7 +154,7 @@ double forward_propagation(
     W3_t.columns = W3.rows;
     W3_t.data = new double[W3_t.rows * W3_t.columns];
 
-    matrix_transpose(W3,W3_t);
+    gpu_matrix_transpose(W3,W3_t);
 
     Matrix2d Y3;
     Y3.rows    = W3_t.rows;
@@ -168,9 +166,9 @@ double forward_propagation(
     W3_t_x_Z2.columns = Y3.columns;
     W3_t_x_Z2.data = new double[W3_t_x_Z2.rows*W3_t_x_Z2.columns];
 
-    matrix_multiplication(W3_t,Z2,W3_t_x_Z2);
+    gpu_matrix_multiplication(W3_t,Z2,W3_t_x_Z2);
 
-    matrix_sum(W3_t_x_Z2,b3,Y3);
+    gpu_matrix_sum(W3_t_x_Z2,b3,Y3);
     
     softmax(Y3,Z3);
 
@@ -399,49 +397,49 @@ void gradient_descent(
         std::printf("\r[iteration %i] calculated loss: %f",iter,loss);
 
         // dL_dY3
-        matrix_diff(Z3,labels,dL_dY3);
+        gpu_matrix_diff(Z3,labels,dL_dY3);
 
         // dL_dY2
-        matrix_diff(one_col_vec_Z2,Z2,diff_1_Z2);
-        matrix_dot_product(Z2,diff_1_Z2,Z2_dot_diff_1_Z2);
-        matrix_multiplication(W3,dL_dY3,W3_mmul_dL_dY3);
-        matrix_dot_product(W3_mmul_dL_dY3,Z2_dot_diff_1_Z2,dL_dY2); 
+        gpu_matrix_diff(one_col_vec_Z2,Z2,diff_1_Z2);
+        gpu_matrix_dot_product(Z2,diff_1_Z2,Z2_dot_diff_1_Z2);
+        gpu_matrix_multiplication(W3,dL_dY3,W3_mmul_dL_dY3);
+        gpu_matrix_dot_product(W3_mmul_dL_dY3,Z2_dot_diff_1_Z2,dL_dY2); 
 
         // dL_dY1
-        matrix_diff(one_col_vec_Z1,Z1,diff_1_Z1);
-        matrix_dot_product(Z1,diff_1_Z1,Z1_dot_diff_1_Z1);
-        matrix_multiplication(W2,dL_dY2,W2_mmul_dL_dY2);
-        matrix_dot_product(W2_mmul_dL_dY2,Z1_dot_diff_1_Z1,dL_dY1);
+        gpu_matrix_diff(one_col_vec_Z1,Z1,diff_1_Z1);
+        gpu_matrix_dot_product(Z1,diff_1_Z1,Z1_dot_diff_1_Z1);
+        gpu_matrix_multiplication(W2,dL_dY2,W2_mmul_dL_dY2);
+        gpu_matrix_dot_product(W2_mmul_dL_dY2,Z1_dot_diff_1_Z1,dL_dY1);
 
         //update W3
-        matrix_multiplication(dL_dY3,Z2_t,dL_dW3);
-        scalar_matrix_dot_product(learning_rate,dL_dW3,learning_rate_dL_dW3);
-        matrix_transpose(learning_rate_dL_dW3,learning_rate_dL_dW3_t);
-        matrix_diff(W3,learning_rate_dL_dW3_t,W3);
+        gpu_matrix_multiplication(dL_dY3,Z2_t,dL_dW3);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dW3,learning_rate_dL_dW3);
+        gpu_matrix_transpose(learning_rate_dL_dW3,learning_rate_dL_dW3_t);
+        gpu_matrix_diff(W3,learning_rate_dL_dW3_t,W3);
 
         //update b3
-        scalar_matrix_dot_product(learning_rate,dL_dY3,learning_rate_dL_dY3);
-        matrix_diff(b3,learning_rate_dL_dY3,b3);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dY3,learning_rate_dL_dY3);
+        gpu_matrix_diff(b3,learning_rate_dL_dY3,b3);
 
         //update W2
-        matrix_multiplication(dL_dY2,Z1_t,dL_dW2);
-        scalar_matrix_dot_product(learning_rate,dL_dW2,learning_rate_dL_dW2);
-        matrix_transpose(learning_rate_dL_dW2,learning_rate_dL_dW2_t);
-        matrix_diff(W2,learning_rate_dL_dW2_t,W2);
+        gpu_matrix_multiplication(dL_dY2,Z1_t,dL_dW2);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dW2,learning_rate_dL_dW2);
+        gpu_matrix_transpose(learning_rate_dL_dW2,learning_rate_dL_dW2_t);
+        gpu_matrix_diff(W2,learning_rate_dL_dW2_t,W2);
 
         //update b2
-        scalar_matrix_dot_product(learning_rate,dL_dY2,learning_rate_dL_dY2);
-        matrix_diff(b2,learning_rate_dL_dY2,b2);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dY2,learning_rate_dL_dY2);
+        gpu_matrix_diff(b2,learning_rate_dL_dY2,b2);
 
         //update W1
-        matrix_multiplication(dL_dY1,X_t,dL_dW1);
-        scalar_matrix_dot_product(learning_rate,dL_dW1,learning_rate_dL_dW1);
-        matrix_transpose(learning_rate_dL_dW1,learning_rate_dL_dW1_t);
-        matrix_diff(W1,learning_rate_dL_dW1_t,W1);
+        gpu_matrix_multiplication(dL_dY1,X_t,dL_dW1);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dW1,learning_rate_dL_dW1);
+        gpu_matrix_transpose(learning_rate_dL_dW1,learning_rate_dL_dW1_t);
+        gpu_matrix_diff(W1,learning_rate_dL_dW1_t,W1);
 
         //update b1
-        scalar_matrix_dot_product(learning_rate,dL_dY1,learning_rate_dL_dY1);
-        matrix_diff(b1,learning_rate_dL_dY1,b1);
+        gpu_scalar_matrix_dot_product(learning_rate,dL_dY1,learning_rate_dL_dY1);
+        gpu_matrix_diff(b1,learning_rate_dL_dY1,b1);
 
         std::cout << std::flush;
     }
@@ -663,6 +661,8 @@ void predict(
 
 int main(void)
 {
+    auto start = std::chrono::system_clock::now();
+
     const int TRAINING_EXAMPLES = 1000;
     const int TEST_EXAMPLES = 100;
 
@@ -734,6 +734,12 @@ int main(void)
 
     delete[] test.data;
     delete[] test_labels.data;
+
+    auto end = std::chrono::system_clock::now();
+
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+
+    std::printf("train set (%i x %i), test set(%i x %i)\nElapsed time : %li\n",X.rows,X.columns,test.rows,test.columns,elapsed);
 
     return 0;
 }
